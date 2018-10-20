@@ -11,6 +11,8 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 include('php/ga.php');
 include('php/session.php');
 
+$MAX_REPEATED_LOGINS = 500;
+
 if(!isset($_SESSION["logintries"])){
 	$_SESSION["logintries"]=0;
 }
@@ -26,7 +28,7 @@ if(!empty($_SESSION["userid"])){
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	if( !empty($_POST["username"]) && !empty($_POST["password"]) ){
-		if($_SESSION["logintries"]>=5){
+		if($_SESSION["logintries"]>=$MAX_REPEATED_LOGINS){
 			if(!isset($_SESSION["loginretry"])){
 				$_SESSION["loginretry"]=time()+20;
 				$loginerror="Maximum tries exceeded.<br/>Please wait 20 seconds.";
@@ -44,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$uname=$conn->escape_string($_POST['username']);
 			$sql = "SELECT * FROM users WHERE username = '$uname'";
 			$result = $conn->query($sql);
-			if ($result->num_rows == 1) {
+			if (is_object($result) && $result->num_rows == 1) {
 				$row=$result->fetch_assoc();
 				if(password_verify($_POST["password"],$row["password"])){
 					if( $row["otpsecret"] == "" || ( !empty($_POST["otp"]) && Google2FA::verify_key($row["otpsecret"],$_POST["otp"]) ) ){

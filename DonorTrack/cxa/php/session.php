@@ -9,10 +9,8 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 */
 
 include("config.php");
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-	die("Connection failed: " . $conn->connect_error);
-}
+include("dbconn.php");
+
 if(!isset($_SESSION)){
 	session_start();
 }
