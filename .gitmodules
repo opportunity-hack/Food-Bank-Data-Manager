@@ -1,0 +1,3 @@
+[submodule "DonorTrack/cxa/php/qrgen"]
+	path = DonorTrack/cxa/php/qrgen
+	url = https://github.com/t0k4rt/phpqrcode.git
