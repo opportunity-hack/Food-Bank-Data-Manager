@@ -14,61 +14,31 @@ echo($dbi->get_latest_frame(1));
 		<link rel="stylesheet" type="text/css" href="/cxa/css/cxa-flex.css">
 		<link rel="icon" type="image/png" href="/cxa/img/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=0.5">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="/cxa/js/jquery.min.js"><\/script>')</script>
-		<script>
-			window.current_graph = 1;
-			window.graph_count = 2;
-			
-			function next_graph ()
-			{
-				window.current_graph += 1;
-				if (window.current_graph > window.graph_count)
-				{
-					window.current_graph = window.graph_count;
-					return;
-				}
-				
-				var graphs = document.getElementById('content').children;
-				graphs[window.current_graph - 2].style = "display: none;";
-				graphs[window.current_graph - 1].style = "display: block;";
-				
-				update_status();
-			}
-			
-			function prev_graph ()
-			{
-				window.current_graph -= 1;
-				if (window.current_graph < 1)
-				{
-					window.current_graph = 1;
-					return;
-				}
-				
-				var graphs = document.getElementById('content').children;
-				graphs[window.current_graph - 0].style = "display: none;";
-				graphs[window.current_graph - 1].style = "display: block;";
-				
-				update_status();
-			}
-			
-			function update_status ()
-			{
-				var status = document.getElementById('graphstatus');
-				status.textContent = "Graph " + window.current_graph + "/" + window.graph_count;
-			}
-		</script>
+		<style>
+		.row-container {
+			display: flex;
+			flex-direction: row;
+			flex-grow: 1;
+		}
+		.row-item {
+			display: block;
+			flex-grow: 1;
+			border: 1px solid #aaa;
+		}
+		</style>
 	</head>
 	<body>
-		<div id="main" style="width: 75%; height: 75%;" >
+		<div id="fill-main">
 			<div id="topbar" class="loginbar noselect"><?php cxa_header("Graphical Statistics") ?>
-				<div id="nextbtn" class="hdrbtn noselect" onclick="next_graph();" style="margin-right: 10px;">Next</div>
-				<div id="graphstatus" class="hdrin noselect">Graph 1/2</div>
-				<div id="prevbtn" class="hdrbtn noselect" onclick="prev_graph();">Previous</div>
 			</div>
-			<div id="content">
-				<iframe class="frame-fill" style="display: block;" src="<?=$dbi->get_latest_frame(1)?>"></iframe>
-				<iframe class="frame-fill" style="display: none;" src="<?=$dbi->get_latest_frame(2)?>"></iframe>
+			<div class="row-container">
+				<iframe class="row-item" src="<?=$dbi->get_latest_frame(1)?>"></iframe>
+				<iframe class="row-item" src="<?=$dbi->get_latest_frame(2)?>"></iframe>
+				<iframe class="row-item" src="<?=$dbi->get_latest_frame(3)?>"></iframe>
+			</div>
+			<div class="row-container">
+				<iframe class="row-item" src="<?=$dbi->get_latest_frame(4)?>"></iframe>
+				<iframe class="row-item" src="<?=$dbi->get_latest_frame(5)?>"></iframe>
 			</div>
 			<div id="footer"><?php cxa_footer() ?></div>
 		</div>

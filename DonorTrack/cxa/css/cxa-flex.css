@@ -37,6 +37,19 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+#fill-main{
+	position: absolute;
+	margin: 0;
+	border: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #f8f8f8;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+}
 	
 .loginbar, .welcomebar{
 	font-weight: bold;
@@ -168,14 +181,12 @@ body {
 	background: #40800B;
 }
 #footer{
-	position: absolute;
-	bottom: 0px;
 	font-weight: bold;
 	font-size: 10px;
 	background: #40800B;
-	height: 13px;
-	left: 0px;
-	right: 0px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	flex-basis: 13px;
 	padding: 8px 4px 4px 6px;
 }
 #login{
@@ -190,10 +201,6 @@ body {
 	color: black;
 	text-shadow: none;
 	display: flex;
-}
-.frame-fill{
-	flex-grow: 1;
-	border: 0;
 }
 #landing {
 	width: 300px;
