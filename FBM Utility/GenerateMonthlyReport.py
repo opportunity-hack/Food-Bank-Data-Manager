@@ -72,10 +72,10 @@ def WriteSummaryData(q, ws, origin=(1,1),  month=None, year=None):
 	ws.cell(row=origin[0], column=origin[1]).alignment = openpyxl.styles.Alignment(horizontal='center')
 	for i, item in enumerate(donor_catagories):
 		ws.cell(row=origin[0] + i + 1, column=origin[1]).value = donation_data[donation_data["DonorCategory"] == item].sum()["Weight (lbs)"]
-	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).value = "=SUM({}:{})".format(ws.cell(row=origin[0] + 1, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories), column=origin[1] + 1).coordinate)
+	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).value = "=SUM({}:{})".format(ws.cell(row=origin[0] + 1, column=origin[1]).coordinate, ws.cell(row=origin[0] + len(donor_catagories), column=origin[1]).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).style = "Calculation"
 	ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1]).value = donation_data[donation_data["DonorCategory"] == "Waste"].sum()["Weight (lbs)"]
-	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).value = "={}-{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1] + 1).coordinate)
+	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).value = "={}-{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1]).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).style = "Calculation"
 
 def WriteSummaryLabel(ws, origin=(1,1)):
