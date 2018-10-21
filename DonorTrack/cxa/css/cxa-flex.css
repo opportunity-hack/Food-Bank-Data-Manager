@@ -37,6 +37,19 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+#fill-main{
+	position: absolute;
+	margin: 0;
+	border: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #f8f8f8;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+}
 	
 .loginbar, .welcomebar{
 	font-weight: bold;

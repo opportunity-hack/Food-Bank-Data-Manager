@@ -60,10 +60,10 @@ echo($dbi->get_latest_frame(1));
 		</script>
 	</head>
 	<body>
-		<div id="main" style="width: 75%; height: 75%;" >
+		<div id="fill-main">
 			<div id="topbar" class="loginbar noselect"><?php cxa_header("Graphical Statistics") ?>
 				<div id="nextbtn" class="hdrbtn noselect" onclick="next_graph();" style="margin-right: 10px;">Next</div>
-				<div id="graphstatus" class="hdrin noselect">Graph 1/2</div>
+				<div id="graphstatus" class="hdrin noselect">Graph 1/5</div>
 				<div id="prevbtn" class="hdrbtn noselect" onclick="prev_graph();">Previous</div>
 			</div>
 			<div id="content">
