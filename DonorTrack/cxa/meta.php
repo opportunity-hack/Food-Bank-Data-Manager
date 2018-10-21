@@ -8,6 +8,8 @@ You should have received a copy of this license with CXA Auth LW.
 If not, to view a copy of the license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/us/legalcode
 */
 
+require_once('php/config.php');
+
 $sitetitle="MCDM DonorTrack";
 function cxa_header($type=false,$url="/index.php"){
 	echo '<a id="toplogo" href="'.$url.'">MCDM DonorTrack</a>';
@@ -22,6 +24,7 @@ function cxa_minheader($type=false,$url="landing.php"){
 	}
 }
 function cxa_footer(){
-	echo "&nbsp;MCDM DonorTrack &copy;2016 J. Rowley, M. Omo, J. Woo - <a href=\"https://github.com/Opportunity-Hack-2016-AZ/Matthews-Crossing-Data-Manager\">github</a>";
+	$app_version = $GLOBALS['app_version'];
+	echo "&nbsp;MCDM DonorTrack v$app_version &copy;2018 J. Rowley, M. Omo - <a href=\"https://github.com/2018-Arizona-Opportunity-Hack/Team15-Matthews-Crossing-Data-Manager\">github</a>";
 }
 ?>
