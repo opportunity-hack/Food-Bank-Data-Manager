@@ -5,8 +5,8 @@ boot_user(2);
 function refreshDonorList(){
 	$_SESSION["donorlist"] = "pending";
 	$newDonorList = Array();
-	global $pypath, $fbm_user, $fbm_pass;
-	$pyInter = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"donors\" \"$fbm_user\" \"$fbm_pass\"");
+	global $pypath;
+	$pyInter = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"donors\"");
 	$interList = json_decode(preg_replace('/,\s*([\]}])/m', '$1', "{\"donors\":[".substr($pyInter,0,-7)."]}"), true)["donors"];
 	foreach($interList as $interDonor){
 		$newDonorID = intval($interDonor["Donor ID"]);
@@ -35,11 +35,11 @@ function addDonor($fields){
 			}
 		}
 		$json = json_encode($json_inter);
-		global $pypath, $fbm_user, $fbm_pass;
+		global $pypath;
 		if(stristr(PHP_OS, 'WIN')){
-			$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donor\" \"$fbm_user\" \"$fbm_pass\" \"".str_replace("\"", "\"\"", $json)."\"");
+			$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donor\" \"".str_replace("\"", "\"\"", $json)."\"");
 		}else{
-			$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donor\" \"$fbm_user\" \"$fbm_pass\" '$json'");
+			$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donor\" '$json'");
 		}
 		$newDonorID=nextDonorID();
 		$_SESSION["donorlist"][$newDonorID]["firstname"] = $json_inter["first"];
@@ -60,7 +60,7 @@ function addDonor($fields){
 function addDonation($fields){
 	if(!empty($fields["donorid"]) && array_key_exists($fields["donorid"], $_SESSION["donorlist"]) && !empty($fields["weight"]) && isset($fields["type"])){
 		//if(!isset($fields["source"])) $fields["source"]="";
-		global $pypath, $fbm_user, $fbm_pass;
+		global $pypath;
 		if(!empty($fields["date"])){
 			try{
 				$date = new DateTime($fields["date"]);
@@ -70,7 +70,7 @@ function addDonation($fields){
 		}else{
 			$date = new DateTime();
 		}
-		$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donation\" \"$fbm_user\" \"$fbm_pass\" ".escapeshellarg($fields["donorid"])." ".escapeshellarg($fields["weight"])." ".escapeshellarg($fields["type"])." \"".$date->format("Y-m-d")."\"");
+		$result = shell_exec("$pypath \"../FBM Utility/FoodBankManager.py\" \"add_donation\" ".escapeshellarg($fields["donorid"])." ".escapeshellarg($fields["weight"])." ".escapeshellarg($fields["type"])." \"".$date->format("Y-m-d")."\"");
 		if($result != "200"){
 			return true;
 		}else{
@@ -108,6 +108,43 @@ function getMYReport ($date)
 	else
 	{
 		error_log("myreport script broke");
+		return false;
+	}
+}
+
+function getRangeReport ($report, $date_start, $date_end)
+{
+	global $pypath;
+	try
+	{
+		$date_start = new DateTime($date_start);
+	}
+	catch (Exception $ex)
+	{
+		$date_start = new DateTime();
+	}
+	try
+	{
+		$date_end = new DateTime($date_end);
+	}
+	catch (Exception $ex)
+	{
+		$date_end = new DateTime();
+	}
+	
+	$script_folder = "../FBM Utility/";
+	$olddir = getcwd();
+	chdir($script_folder);
+	$pyInter = shell_exec("$pypath \"FoodBankManager.py\" \"$report\" \"".$date_start->format("Y-m-d")."\" \"".$date_end->format("Y-m-d")."\"");
+	chdir($olddir);
+	$filename = $script_folder . trim($pyInter);
+	if (trim($pyInter) !== "" && file_exists($filename))
+	{
+		return $filename;
+	}
+	else
+	{
+		error_log("main fbmutil script broke");
 		return false;
 	}
 }

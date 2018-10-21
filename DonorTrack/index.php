@@ -58,6 +58,12 @@ if(isset($_SESSION["userdata"])){
 					<a class="action stored" href="./myreport.php">
 						Monthy/Yearly Report
 					</a>
+					<a class="action stored" href="./foodreport.php">
+						Food Intake Report
+					</a>
+					<a class="action stored" href="./guestreport.php">
+						Guest/Outreach Report
+					</a>
 				</div>
 				';}
 				if(authorized(4)){echo '

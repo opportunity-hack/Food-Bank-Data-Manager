@@ -379,15 +379,17 @@ if __name__ == '__main__':
 		print q.PostDonation(sys.argv[2], 0, sys.argv[3], sys.argv[4], sys.argv[5])
 	elif sys.argv[1] == "fooddonations":
 		# start-date, end-date (format mm-dd-yyyy
-		start = datetime.strptime(sys.argv[2], "%m-%d-%Y")
-		end = datetime.strptime(sys.argv[3], "%m-%d-%Y")
+		start = datetime.strptime(sys.argv[2], "%Y-%m-%d")
+		end = datetime.strptime(sys.argv[3], "%Y-%m-%d")
 		donor_list = q.GetFoodDonations(start, end)
-		donor_list.to_csv("GetFoodDonations.csv", sep=',')
-		print "GetFoodDonations-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		filename = "GetFoodDonations-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		donor_list.to_csv(filename, sep=',')
+		print filename
 	elif sys.argv[1] == "guestdata":
 		# start-date, end-date (format mm-dd-yyyy
-		start = datetime.strptime(sys.argv[2], "%m-%d-%Y")
-		end = datetime.strptime(sys.argv[3], "%m-%d-%Y")
+		start = datetime.strptime(sys.argv[2], "%Y-%m-%d")
+		end = datetime.strptime(sys.argv[3], "%Y-%m-%d")
 		donor_list = q.GetGuestData(start, end)
-		donor_list.to_csv("GetGuestData.csv", sep=',')
-		print "GetGuestData-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		filename = "GetGuestData-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		donor_list.to_csv(filename, sep=',')
+		print filename
