@@ -33,12 +33,23 @@ def PiviotInvintoryTable(df):
 	df = pd.pivot_table(df, index=["DonorCategory"], values=["Weight (lbs)"], aggfunc=[np.sum])
 	return df
 
+def MonthlyGuestData(FBMInst,month=None, year=None):
+	if month is not None and year is not None:
+		start = datetime.date(year, month, 1)
+		end = datetime.date(year, month, calendar.monthrange(year, month)[1])
+	else:
+		start, end = FindLastMonthsDates()
+
+	data = FBMInst.GetGuestData(start, end)
+
+	data[["Tracking Result"]] = data[["Tracking Result"]].astype("int")
+
+	return data
 
 if __name__ == '__main__':
+	# set unlimited table display size
+	pd.set_option('display.expand_frame_repr', False)
 	q = FBM("mcfb.soxbox.co")
-	data = RunMonthlyReport(q, month=8, year=2018)
-	data = PiviotInvintoryTable(data)
+	data = MonthlyGuestData(q, month=8, year=2018)
+	print data["Tracking Result"].sum()
 	print data
-	writer = pd.ExcelWriter('output.xlsx')
-	data.to_excel(writer, "September")
-	writer.save()
