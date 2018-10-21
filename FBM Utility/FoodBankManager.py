@@ -6,7 +6,7 @@ import json
 import csv
 import sys
 
-import MySQLdb
+import mysql.connector
 
 
 class FBM(object):
@@ -20,7 +20,7 @@ class FBM(object):
 		with open('database_info.json') as f:
 			database_info = json.load(f)
 
-		self.db = MySQLdb.connect(**database_info)
+		self.db = mysql.connector.connect(**database_info)
 		self.cur = self.db.cursor()
 
 		self.auth()

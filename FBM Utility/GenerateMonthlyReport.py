@@ -27,8 +27,7 @@ def RunMonthlyReport(FBMInst,month=None, year=None):
 
 	return FBMInst.GetFoodDonations(start, end)
 
-def PiviotInvintoryTable(df):
-	print df
+def PivotInventoryTable(df):
 	df[["Weight (lbs)"]] = df[["Weight (lbs)"]].astype("float")
 	df = pd.pivot_table(df, index=["DonorCategory"], values=["Weight (lbs)"], aggfunc=[np.sum])
 	return df
@@ -37,7 +36,7 @@ def PiviotInvintoryTable(df):
 if __name__ == '__main__':
 	q = FBM("mcfb.soxbox.co")
 	data = RunMonthlyReport(q, month=8, year=2018)
-	data = PiviotInvintoryTable(data)
+	data = PivotInventoryTable(data)
 	print data
 	writer = pd.ExcelWriter('output.xlsx')
 	data.to_excel(writer, "September")

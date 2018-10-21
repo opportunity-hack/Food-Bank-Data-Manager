@@ -1,1 +1,5 @@
 DonorTrack/cxa/php/config.php
+*.pyc
+FBM Utility/database_info.json
+FBM Utility/MCFB_Auth.json
+FBM Utility/output.xlsx
