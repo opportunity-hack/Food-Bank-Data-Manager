@@ -120,7 +120,6 @@ def WriteExcelSheet(name, month=None, year=None):
 
 	wb = openpyxl.Workbook()
 	sheet = wb.create_sheet("12 Month Overview")
-	wb.active = sheet
 	ws = sheet
 
 	WriteSummeryLabel(ws, origin=(2, 1))
