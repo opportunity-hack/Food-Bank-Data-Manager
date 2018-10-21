@@ -59,7 +59,7 @@ def graph_1(fbm):
 	}
 	return embedded_plot(graph)
 
-def graph_2(fbm):
+def graph_2345_data(fbm):
 	now = datetime.now()
 	end = datetime(now.year, now.month + 1, 1)
 	start = end + relativedelta(months=-12)
@@ -68,10 +68,12 @@ def graph_2(fbm):
 	food_data[u'Donated On'] = pd.to_datetime(food_data[u'Donated On']).astype(datetime)
 	food_data[u'Weight (lbs)'] = food_data[u'Weight (lbs)'].astype(float)
 	guest_data[u'Outreach on'] = pd.to_datetime(guest_data[u'Outreach on']).astype(datetime)
+	guest_data[u'Tracking Result'] = guest_data[u'Tracking Result'].astype(int)
 	
 	output = []
 	period_start = start
 	inventory = 0
+	all_clients = set()
 	
 	for i in range(12):
 		period_end = period_start + relativedelta(months=+1)
@@ -82,16 +84,33 @@ def graph_2(fbm):
 		intake_total = food_month[food_month[u'DonorCategory'] != u'Waste'][u'Weight (lbs)'].sum()
 		waste_total =  food_month[food_month[u'DonorCategory'] == u'Waste'][u'Weight (lbs)'].sum()
 		output_total = guest_month.shape[0] * 40
-		
+		food_out_total = waste_total + output_total
 		inventory += (intake_total - waste_total - output_total)
-		output.append((period_start, intake_total, waste_total + output_total, inventory))
 		
+		volunteer_hours = 0
+		day_start = period_start
+		for d in range(1, calendar.monthrange(day_start.year, day_start.month)[1] + 1):
+			day_end = day_start + relativedelta(days=+1)
+			outreach_day = guest_data[(guest_data[u'Outreach on'] >= day_start) & (guest_data[u'Outreach on'] <= day_end)]
+			volunteer_hours += len(outreach_day[u'Volunteer'].unique())
+			day_start = day_end
+		
+		clients = set(guest_month[u'Guest ID'].unique())
+		month_clients = len(clients)
+		new_clients = len([c for c in clients if c not in all_clients])
+		all_clients = all_clients.union(clients)
+		
+		clients_served = guest_month[u'Tracking Result'].sum()
+		
+		output.append((period_start, intake_total, food_out_total, inventory, volunteer_hours, month_clients, new_clients, clients_served))
 		period_start = period_end
 	
-	output = zip(*output)
+	return zip(*output)
+
+def graph_2(data):
 	trace1 = {
-		'x':    output[0],
-		'y':    output[1],
+		'x':    data[0],
+		'y':    data[1],
 		'mode': 'lines',
 		'line': {
 			'width': 3
@@ -101,8 +120,8 @@ def graph_2(fbm):
 		'yaxis':      'y1'
 	}
 	trace2 = {
-		'x':    output[0],
-		'y':    output[2],
+		'x':    data[0],
+		'y':    data[2],
 		'mode': 'lines',
 		'line': {
 			'width': 3
@@ -112,8 +131,8 @@ def graph_2(fbm):
 		'yaxis':      'y1'
 	}
 	trace3 = {
-		'x':    output[0],
-		'y':    output[3],
+		'x':    data[0],
+		'y':    data[3],
 		'mode': 'lines',
 		'line': {
 			'width': 3
@@ -140,10 +159,113 @@ def graph_2(fbm):
 	}
 	return embedded_plot(graph)
 
+def graph_3(data):
+	trace1 = {
+		'x':    data[0],
+		'y':    data[4],
+		'mode': 'lines',
+		'line': {
+			'width': 3
+		},
+		'fill':       'none',
+		'name':       'Volunteer Hours',
+		'yaxis':      'y1'
+	}
+	data = [trace1]
+	layout = go.Layout(
+		title = "Volunteer Hours, Last 12 Months",
+		xaxis = {
+			'type':  'category',
+			'title': 'Date'
+		},
+		yaxis = {
+			'title': 'Hours'
+		}
+	)
+	graph = {
+		'data': data,
+		'layout': layout
+	}
+	return embedded_plot(graph)
+
+def graph_4(data):
+	trace1 = {
+		'x':    data[0],
+		'y':    data[5],
+		'mode': 'lines',
+		'line': {
+			'width': 3
+		},
+		'fill':       'none',
+		'name':       'All Clients',
+		'yaxis':      'y1'
+	}
+	trace2 = {
+		'x':    data[0],
+		'y':    data[6],
+		'mode': 'lines',
+		'line': {
+			'width': 3
+		},
+		'fill':       'none',
+		'name':       'New Clients',
+		'yaxis':      'y1'
+	}
+	data = [trace1, trace2]
+	layout = go.Layout(
+		title = "Clients, Last 12 Months",
+		showlegend = True,
+		xaxis = {
+			'type':  'category',
+			'title': 'Date'
+		},
+		yaxis = {
+			'title': 'Clients'
+		}
+	)
+	graph = {
+		'data': data,
+		'layout': layout
+	}
+	return embedded_plot(graph)
+
+def graph_5(data):
+	trace1 = {
+		'x':    data[0],
+		'y':    data[7],
+		'mode': 'lines',
+		'line': {
+			'width': 3
+		},
+		'fill':       'none',
+		'name':       'People Served',
+		'yaxis':      'y1'
+	}
+	data = [trace1]
+	layout = go.Layout(
+		title = "Total Served, Last 12 Months",
+		xaxis = {
+			'type':  'category',
+			'title': 'Date'
+		},
+		yaxis = {
+			'title': 'People'
+		}
+	)
+	graph = {
+		'data': data,
+		'layout': layout
+	}
+	return embedded_plot(graph)
+
 
 if __name__ == '__main__':
 	fbm = FoodBankManager.FBM("mcfb.soxbox.co")
 	db = DBConn('database_info.json')
 	
 	db.add_frame_date(1, graph_1(fbm))
-	db.add_frame_date(2, graph_2(fbm))
+	data = graph_2345_data(fbm)
+	db.add_frame_date(2, graph_2(data))
+	db.add_frame_date(3, graph_3(data))
+	db.add_frame_date(4, graph_4(data))
+	db.add_frame_date(5, graph_5(data))

@@ -18,7 +18,7 @@ echo($dbi->get_latest_frame(1));
 		<script>window.jQuery || document.write('<script src="/cxa/js/jquery.min.js"><\/script>')</script>
 		<script>
 			window.current_graph = 1;
-			window.graph_count = 2;
+			window.graph_count = 5;
 			
 			function next_graph ()
 			{
@@ -69,6 +69,9 @@ echo($dbi->get_latest_frame(1));
 			<div id="content">
 				<iframe class="frame-fill" style="display: block;" src="<?=$dbi->get_latest_frame(1)?>"></iframe>
 				<iframe class="frame-fill" style="display: none;" src="<?=$dbi->get_latest_frame(2)?>"></iframe>
+				<iframe class="frame-fill" style="display: none;" src="<?=$dbi->get_latest_frame(3)?>"></iframe>
+				<iframe class="frame-fill" style="display: none;" src="<?=$dbi->get_latest_frame(4)?>"></iframe>
+				<iframe class="frame-fill" style="display: none;" src="<?=$dbi->get_latest_frame(5)?>"></iframe>
 			</div>
 			<div id="footer"><?php cxa_footer() ?></div>
 		</div>
