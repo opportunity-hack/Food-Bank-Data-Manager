@@ -42,7 +42,7 @@ body {
 	font-weight: bold;
 	padding: 8px 4px 4px 6px;
 	width: 290px;
-	height: 28px;
+	flex-basis: 28px;
 }
 #topbar {
 	text-align: left;
@@ -51,10 +51,13 @@ body {
 	padding-left:1px;
 	width: auto;
 	background: #9BDA67;
+	flex-shrink: 0;
+	flex-grow: 0;
 }
 #bottombar, .bottombutton {
-	bottom: 25px;
-	height: 25px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	flex-basis: 25px;
 	width: 284px;
 	padding: 6px 8px 4px 8px;
 	text-align: right;
@@ -186,6 +189,10 @@ body {
 	flex-grow: 1;
 	color: black;
 	text-shadow: none;
+	display: flex;
+}
+.frame-fill{
+	flex-grow: 1;
 	border: 0;
 }
 #landing {
@@ -385,9 +392,10 @@ body {
 }
 .hdrbtn{
 	display: inline-block;
+	float: right;
 	position: relative;
-	bottom: 2px;
-	margin: 0px 4px 0px 4px;
+	bottom: -2px;
+	margin: 0px 6px 0px 6px;
 	padding: 0px 4px 0px 4px;
 	box-shadow: 1px 1px 6px -1px black;
 	font-size: 20px;
@@ -409,16 +417,18 @@ body {
 }
 .hdrin{
 	display: inline-block;
+	float: right;
 	position: relative;
-	bottom: 5px;
-	margin: 0px 4px 0px -4px;
+	bottom: -2px;
+	margin: 0px 6px 0px 6px;
 	padding: 0px 4px 0px 4px;
 	box-shadow: 1px 1px 6px -1px black;
-	font-size: 14px;
+	font-size: 18px;
 	height: 23px;
 	line-height: 23px;
 	border: none;
-	background: #FEFEFE;
+	background: #53981b;
+	text-shadow: none;
 }
 /****************** MCDM DonorTrack Specific */
 .ilabel{

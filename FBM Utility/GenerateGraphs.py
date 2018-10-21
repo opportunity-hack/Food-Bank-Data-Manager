@@ -42,7 +42,21 @@ def graph_1(fbm):
 	useful_data = messy_data.to_dict()[('sum', 'Weight (lbs)')]
 	sorted_data = zip(*sorted(useful_data.items(), key=operator.itemgetter(1), reverse=True))
 	
-	graph = [go.Bar(x=sorted_data[0], y=sorted_data[1])]
+	data = [go.Bar(x=sorted_data[0], y=sorted_data[1])]
+	layout = go.Layout(
+		title = "This Month's Donations",
+		xaxis = {
+			'type':  'category',
+			'title': 'Source'
+		},
+		yaxis = {
+			'title': 'Weight (lbs)'
+		}
+	)
+	graph = {
+		'data': data,
+		'layout': layout
+	}
 	return embedded_plot(graph)
 
 def graph_2(fbm):
@@ -109,17 +123,16 @@ def graph_2(fbm):
 		'yaxis':      'y1'
 	}
 	data = [trace1, trace2, trace3]
-	yaxis = {
-		'title': 'Weight (lbs)',
-		'range': [0, 500000]
-	}
 	layout = go.Layout(
+		title = "Food In/Out/Inventory, Last 12 Months",
 		showlegend = True,
 		xaxis = {
 			'type':  'category',
 			'title': 'Date'
 		},
-		yaxis = yaxis
+		yaxis = {
+			'title': 'Weight (lbs)'
+		}
 	)
 	graph = {
 		'data': data,

@@ -41,6 +41,9 @@ if(isset($_SESSION["userdata"])){
 				echo '</div>';
 			?>
 			<div id="landing">
+				<a class="action" href="./graphs.php">
+					Graphical Statistics
+				</a>
 				<?php
 				if(authorized(2)){echo '
 				<a class="action" href="./searchdonors.php">
