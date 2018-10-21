@@ -10,7 +10,9 @@ import json
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-plotly.tools.set_credentials_file(username='ferret_guy', api_key='b2ztoCdM68H6rBxqiiez')
+with open('plotly_auth.json') as f:
+	plotly_auth = json.load(f)
+plotly.tools.set_credentials_file(**plotly_auth)
 
 import mysql.connector
 
@@ -21,7 +23,7 @@ class DBConn:
 	def __init__(self, cred_file):
 		database_info = None
 		with open(cred_file) as f:
-				database_info = json.load(f)
+			database_info = json.load(f)
 		self.db = mysql.connector.connect(**database_info)
 		self.cur = self.db.cursor()
 	
@@ -30,6 +32,7 @@ class DBConn:
 		values = (id, url)
 		self.cur.execute(sql, values)
 		self.db.commit()
+
 
 def embedded_plot(graph):
 	return "{}.embed".format(py.plot(graph, auto_open=False))
