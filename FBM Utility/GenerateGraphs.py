@@ -53,7 +53,8 @@ def graph_1(fbm):
 			'title': 'Source'
 		},
 		yaxis = {
-			'title': 'Weight (lbs)'
+			'title': 'Weight (lbs)',
+			'rangemode': 'tozero'
 		}
 	)
 	graph = {
@@ -64,7 +65,7 @@ def graph_1(fbm):
 
 def graph_2345_data(fbm):
 	now = datetime.now()
-	end = datetime(now.year, now.month + 1, 1)
+	end = datetime(now.year, now.month, 1) + relativedelta(months=-1)
 	start = end + relativedelta(months=-12)
 	food_data = fbm.GetFoodDonations(start, end)
 	guest_data = fbm.GetGuestData(start, end)
@@ -153,7 +154,8 @@ def graph_2(data):
 			'title': 'Date'
 		},
 		yaxis = {
-			'title': 'Weight (lbs)'
+			'title': 'Weight (lbs)',
+			'rangemode': 'tozero'
 		}
 	)
 	graph = {
@@ -182,7 +184,8 @@ def graph_3(data):
 			'title': 'Date'
 		},
 		yaxis = {
-			'title': 'Hours'
+			'title': 'Hours',
+			'rangemode': 'tozero'
 		}
 	)
 	graph = {
@@ -223,7 +226,8 @@ def graph_4(data):
 			'title': 'Date'
 		},
 		yaxis = {
-			'title': 'Clients'
+			'title': 'Clients',
+			'rangemode': 'tozero'
 		}
 	)
 	graph = {
@@ -252,7 +256,8 @@ def graph_5(data):
 			'title': 'Date'
 		},
 		yaxis = {
-			'title': 'People'
+			'title': 'People',
+			'rangemode': 'tozero'
 		}
 	)
 	graph = {
