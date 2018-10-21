@@ -382,7 +382,7 @@ if __name__ == '__main__':
 		start = datetime.strptime(sys.argv[2], "%Y-%m-%d")
 		end = datetime.strptime(sys.argv[3], "%Y-%m-%d")
 		donor_list = q.GetFoodDonations(start, end)
-		filename = "GetFoodDonations-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		filename = "out/GetFoodDonations-{}-{}.csv".format(sys.argv[2], sys.argv[3])
 		donor_list.to_csv(filename, sep=',')
 		print filename
 	elif sys.argv[1] == "guestdata":
@@ -390,6 +390,6 @@ if __name__ == '__main__':
 		start = datetime.strptime(sys.argv[2], "%Y-%m-%d")
 		end = datetime.strptime(sys.argv[3], "%Y-%m-%d")
 		donor_list = q.GetGuestData(start, end)
-		filename = "GetGuestData-{}-{}.csv".format(sys.argv[2], sys.argv[3])
+		filename = "out/GetGuestData-{}-{}.csv".format(sys.argv[2], sys.argv[3])
 		donor_list.to_csv(filename, sep=',')
 		print filename

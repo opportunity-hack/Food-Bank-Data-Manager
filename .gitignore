@@ -5,3 +5,4 @@ FBM Utility/*.csv
 FBM Utility/*.xlsx
 DonorTrack/cxa/php/secret-config.php
 FBM Utility/plotly_auth.json
+FBM Utility/out/
