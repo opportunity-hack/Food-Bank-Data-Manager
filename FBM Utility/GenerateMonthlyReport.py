@@ -117,8 +117,8 @@ def WriteExcelSheet(name, month=None, year=None):
 	q = FBM("mcfb.soxbox.co")
 
 	wb = openpyxl.Workbook()
-	sheet = wb.create_sheet("12 Month Overview")
-	ws = sheet
+	ws = wb.active
+	ws.title = "12 Month Overview"
 
 	WriteSummaryLabel(ws, origin=(2, 1))
 	ym_start = 12 * year + month - 1

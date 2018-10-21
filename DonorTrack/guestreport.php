@@ -10,7 +10,7 @@ if (!empty($_POST["date-start"]) && !empty($_POST["date-end"]))
 	if ($filename !== false)
 	{
 		$sfname = basename($filename);
-		header("Content-Type: text/csv");
+		header("Content-Type: text/csv; charset=utf-8");
 		header("Content-Disposition: attachment; filename=\"MCDM-$sfname\"");
 		echo(file_get_contents($filename));
 		exit();
@@ -32,7 +32,7 @@ if (!empty($_POST["date-start"]) && !empty($_POST["date-end"]))
 		<script>
 			function special_submit ()
 			{
-				var element = document.getElementById('results');
+				var element = document.getElementById('loginerror');
 				if (element !== null) {
 					element.parentNode.removeChild(element);
 				}
@@ -50,19 +50,16 @@ if (!empty($_POST["date-start"]) && !empty($_POST["date-end"]))
 			<div class="welcomebar">
 				Guest/Outreach Report<br/>
 			</div>
-			<?php
-			if(isset($interError)){
-			?>
-				<div id="results" style="width: 100%; border-bottom: 1px solid #aaa; overflow-y: hidden; height: auto;">
-					<div class="resitem nohover"></div>
-					<div class="resitem nohover">
+			<form action="guestreport.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
+				<?php
+				if(isset($interError)){
+				?>
+					<div id="loginerror">
 						Internal error!
 					</div>
-				</div>
-			<?php
-				}
-			?>
-			<form action="guestreport.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
+				<?php
+					}
+				?>
 				<p class="ilabel">Report Start Date <span style="color: #666">(YYYY-MM-DD)</span></p>
 				<input type="text" id="date-start" name="date-start" class="registertext" style="width: 100%;" <?=tryField("date-start")?tryFieldValue("date-start"):'value="'.date("Y-m-d").'"'?> />
 				<p class="ilabel">Report End Date <span style="color: #666">(YYYY-MM-DD)</span></p>

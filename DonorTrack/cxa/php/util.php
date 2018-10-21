@@ -18,7 +18,7 @@ class Util
 
 	public static function run($command)
 	{
-		error_log("Running command:\n".$command."\n\n".shell_exec($command));
+		error_log("Running command:\n".$command."\n\n".shell_exec($command . " 2>&1"));
 	}
 	
 }

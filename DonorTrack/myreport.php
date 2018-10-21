@@ -10,7 +10,7 @@ if (!empty($_POST["date"]))
 	if ($filename !== false)
 	{
 		$sfname = basename($filename);
-		header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8");
 		header("Content-Disposition: attachment; filename=\"MCDM-MY$sfname\"");
 		echo(file_get_contents($filename));
 		exit();
@@ -32,7 +32,7 @@ if (!empty($_POST["date"]))
 		<script>
 			function special_submit ()
 			{
-				var element = document.getElementById('results');
+				var element = document.getElementById('loginerror');
 				if (element !== null) {
 					element.parentNode.removeChild(element);
 				}
@@ -50,19 +50,16 @@ if (!empty($_POST["date"]))
 			<div class="welcomebar">
 				Monthly/Yearly Report<br/>
 			</div>
-			<?php
-			if(isset($interError)){
-			?>
-				<div id="results" style="width: 100%; border-bottom: 1px solid #aaa; overflow-y: hidden; height: auto;">
-					<div class="resitem nohover"></div>
-					<div class="resitem nohover">
+			<form action="myreport.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
+				<?php
+				if(isset($interError)){
+				?>
+					<div id="loginerror">
 						Internal error!
 					</div>
-				</div>
-			<?php
-				}
-			?>
-			<form action="myreport.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
+				<?php
+					}
+				?>
 				<p class="ilabel">Report Month <span style="color: #666">(YYYY-MM)</span></p>
 				<input type="text" id="date" name="date" class="registertext" style="width: 100%;" <?=tryField("date")?tryFieldValue("date"):'value="'.date("Y-m").'"'?> />
 				<input type="submit" style="position: absolute; height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" tabindex="-1" />
