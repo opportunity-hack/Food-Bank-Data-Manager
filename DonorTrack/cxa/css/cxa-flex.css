@@ -181,14 +181,12 @@ body {
 	background: #40800B;
 }
 #footer{
-	position: absolute;
-	bottom: 0px;
 	font-weight: bold;
 	font-size: 10px;
 	background: #40800B;
-	height: 13px;
-	left: 0px;
-	right: 0px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	flex-basis: 13px;
 	padding: 8px 4px 4px 6px;
 }
 #login{
