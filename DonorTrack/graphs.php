@@ -1,5 +1,5 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/session.php');
+include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/guestsession.php');
 include($_SERVER['DOCUMENT_ROOT'].'/cxa/meta.php');
 include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/dashboard.php');
 

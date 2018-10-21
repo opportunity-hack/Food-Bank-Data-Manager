@@ -10,7 +10,7 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 <?php
 session_start();
 $_SESSION["return"]="/index.php";
-include('cxa/php/session.php');
+include('cxa/php/guestsession.php');
 include('cxa/meta.php');
 if(isset($_SESSION["userdata"])){
 ?>
@@ -45,15 +45,18 @@ if(isset($_SESSION["userdata"])){
 					Graphical Statistics
 				</a>
 				<?php
-				if(authorized(2)){echo '
+				if(authorized(2)){
+				?>
 				<a class="action" href="./searchdonors.php">
 					Input Donation
 				</a>
 				<a class="action" href="./adddonor.php">
 					Add New Donor
 				</a>
-				';}
-				if(authorized(3)){echo '
+				<?php
+				}
+				if(authorized(3)){
+				?>
 				<div class="action drawer-handle" id="dh-reports">
 					Reports
 				</div>
@@ -71,8 +74,10 @@ if(isset($_SESSION["userdata"])){
 						Regenerate Graphs
 					</a>
 				</div>
-				';}
-				if(authorized(4)){echo '
+				<?php
+				}
+				if(authorized(4)){
+				?>
 				<div class="action drawer-handle" id="dh-admin">
 					Administration
 				</div>
@@ -87,7 +92,9 @@ if(isset($_SESSION["userdata"])){
 						New User
 					</a>
 				</div>
-				';}elseif(authorized(3)){echo '
+				<?php
+				}elseif(authorized(3)){
+				?>
 				<div class="action drawer-handle" id="dh-admin">
 					Administration
 				</div>
@@ -99,7 +106,8 @@ if(isset($_SESSION["userdata"])){
 						New User
 					</a>
 				</div>
-				';}
+				<?php }
+				if(authorized(1)){
 				?>
 				<div class="action drawer-handle" id="dh-account">
 					Account
@@ -128,6 +136,15 @@ if(isset($_SESSION["userdata"])){
 						<?php echo $_SESSION['userdata']['username']; ?>
 					</a>
 				</div>
+				<?php
+				}else{
+				?>
+				<a class="action" href="./cxa/login.php">
+					Login
+				</a>
+				<?php
+				}
+				?>
 			</div>
 			<div id="footer" class="loginbar"><?php cxa_footer() ?></div>
 		</div>

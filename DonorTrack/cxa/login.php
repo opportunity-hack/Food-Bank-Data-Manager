@@ -17,7 +17,7 @@ if(!isset($_SESSION["logintries"])){
 	$_SESSION["logintries"]=0;
 }
 
-$return = "admin.php";
+$return = "../index.php";
 if(!empty($_SESSION["return"])){
 	$return = $_SESSION["return"];
 }
