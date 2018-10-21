@@ -44,12 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }elseif(!empty($_SESSION['regsql']) && !empty($_SESSION['otpuri'])){
 	include('php/reg-img.php');
 }elseif(!empty($_SESSION['userdata'])){
-	if(isset($_GET["recall"])){
-		$_SESSION['otpuri']='otpauth://totp/MCDM:'.$_SESSION["userdata"]["username"].'@CXA?secret='.$_SESSION["userdata"]["otpsecret"];
-		$imgtitle="Set up 2FA";
-		$imgsrc="/cxa/otpimg.php";
-		include('php/imgframe.php');
-	}elseif(isset($_GET["reset"])){
+	if(isset($_GET["reset"])){
 		$CONFOPTS=[
 			"title" => "Reset 2FA",
 			"message" => "Are you sure you want to reset Two-Factor Authentication?<br/>This will cause any OTP generators you have connected to stop working.",

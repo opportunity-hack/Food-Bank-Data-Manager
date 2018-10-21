@@ -114,9 +114,6 @@ if(isset($_SESSION["userdata"])){
 				</div>
 				<div class="drawer" id="d-account">
 					<?php if($_SESSION['userdata']['otpsecret'] != ""){ ?>
-					<a class="action stored" href="./cxa/otpcode.php?recall">
-						Recall OTP
-					</a>
 					<a class="action stored" href="./cxa/otpcode.php?reset">
 						Reset OTP
 					</a>
