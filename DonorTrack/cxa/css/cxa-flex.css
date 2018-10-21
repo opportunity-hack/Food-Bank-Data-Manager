@@ -33,7 +33,6 @@ body {
 	transform: translateY(-50%) translateX(-50%);
 	-webkit-transform: translateY(-50%) translateX(-50%);
 	-ms-transform: translateY(-50%) translateX(-50%);
-	padding-bottom: 25px;
 	display: flex;
 	flex-direction: column;
 }
@@ -292,6 +291,11 @@ body {
 	background: #eee;
 	box-shadow: 1px 1px 6px -1px black;
 	cursor: pointer;
+	border: none;
+	box-sizing: content-box;
+    text-align: inherit;
+    font-family: inherit;
+    font-size: inherit;
 }
 .logincenter{
 	display: block;
@@ -441,6 +445,11 @@ body {
 .ilabel{
 	display: inline-block;
 	min-width: 40%;
+	margin: 4px 0px 2px 0px;
+}
+.flabel{
+	display: block;
+	width: 240px;
 	margin: 4px 0px 2px 0px;
 }
 #results {
