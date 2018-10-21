@@ -358,7 +358,7 @@ if __name__ == '__main__':
 	# set unlimited table display size
 	pd.set_option('display.expand_frame_repr', False)
 
-	if len(sys.argv) < 3:
+	if len(sys.argv) < 2:
 		print "Usage: 'task' <params>etc..."
 		exit(1)
 	q = FBM("mcfb.soxbox.co")

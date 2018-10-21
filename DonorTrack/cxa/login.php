@@ -11,7 +11,7 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 include('php/ga.php');
 include('php/session.php');
 
-$MAX_REPEATED_LOGINS = 500;
+$MAX_REPEATED_LOGINS = 5;
 
 if(!isset($_SESSION["logintries"])){
 	$_SESSION["logintries"]=0;
