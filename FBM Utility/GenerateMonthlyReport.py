@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import sys
 
 import pandas as pd
 import numpy as np
@@ -50,7 +51,7 @@ def MonthlyGuestData(FBMInst,month=None, year=None):
 
 	return data
 
-def WriteSummeryData(q, ws, origin=(1,1),  month=None, year=None):
+def WriteSummaryData(q, ws, origin=(1,1),  month=None, year=None):
 	donor_catagories = ["Grocery", "Org/Corp", "Individual", "Church", "Purchased", "Senior program"]
 	if month is not None and year is not None:
 		start = datetime.date(year, month, 1)
@@ -71,13 +72,13 @@ def WriteSummeryData(q, ws, origin=(1,1),  month=None, year=None):
 	ws.cell(row=origin[0], column=origin[1]).alignment = openpyxl.styles.Alignment(horizontal='center')
 	for i, item in enumerate(donor_catagories):
 		ws.cell(row=origin[0] + i + 1, column=origin[1]).value = donation_data[donation_data["DonorCategory"] == item].sum()["Weight (lbs)"]
-	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).value = "=SUM({}:{})".format(ws.cell(row=origin[0] + 2, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1] + 1).coordinate)
+	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).value = "=SUM({}:{})".format(ws.cell(row=origin[0] + 1, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories), column=origin[1] + 1).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).style = "Calculation"
 	ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1]).value = donation_data[donation_data["DonorCategory"] == "Waste"].sum()["Weight (lbs)"]
-	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).value = "={}-{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1] + 1).coordinate)
+	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).value = "={}-{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1] + 1).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1] + 1).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).style = "Calculation"
 
-def WriteSummeryLabel(ws, origin=(1,1)):
+def WriteSummaryLabel(ws, origin=(1,1)):
 	ws.column_dimensions[ws.cell(row=origin[0], column=origin[1]).column].width = 17
 	donor_catagories = ["Grocery", "Org/Corp", "Individual", "Church", "Purchased", "Senior program"]
 	for i, item in enumerate(donor_catagories):
@@ -97,17 +98,18 @@ def WriteExcelSheet(month=None, year=None):
 		start, end = FindLastMonthsDates()
 
 	q = FBM("mcfb.soxbox.co")
-	donation_data = RunMonthlyReport(q, month=start.month, year=start.year)
-	user_data = MonthlyGuestData(q, month=start.month, year=start.year)
 
 	wb = openpyxl.Workbook()
 	ws = wb.active
-	WriteSummeryLabel(ws, origin=(2, 1))
-	for month in range(1, 12 + 1):
-		WriteSummeryData(q, ws, origin=(2, month+1), month=month, year=year)
-	wb.save("test.xlsx")
+	WriteSummaryLabel(ws, origin=(2, 1))
+	for i in range(11, -1, -1):
+		WriteSummaryData(q, ws, origin=(2, (12-i)+1), month=(((month-i)-1)%12)+1, year=year-(1 if (month-i) < 1 else 0))
+	
+	filename = "test.xlsx"
+	wb.save(filename)
+	return filename
 
 if __name__ == '__main__':
 	pd.set_option('display.expand_frame_repr', False)
-
-	print WriteExcelSheet(month=8, year=2018)
+	start = datetime.datetime.strptime(sys.argv[1], "%Y-%m")
+	print WriteExcelSheet(month=start.month, year=start.year)

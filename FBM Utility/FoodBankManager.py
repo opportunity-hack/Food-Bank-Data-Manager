@@ -5,6 +5,7 @@ import time
 import json
 import csv
 import sys
+import os
 
 import mysql.connector
 
@@ -17,7 +18,7 @@ class FBM(object):
 
 		database_info = None
 
-		with open('database_info.json') as f:
+		with open(os.path.dirname(os.path.realpath(__file__))+'/database_info.json') as f:
 			database_info = json.load(f)
 
 		self.db = mysql.connector.connect(**database_info)
@@ -34,7 +35,7 @@ class FBM(object):
 		return self._grocery_list
 
 	def auth(self):
-		with open('MCFB_Auth.json') as f:
+		with open(os.path.dirname(os.path.realpath(__file__))+'/MCFB_Auth.json') as f:
 			auth_info = json.load(f)
 
 		payload = {

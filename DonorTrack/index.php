@@ -50,6 +50,16 @@ if(isset($_SESSION["userdata"])){
 					Add New Donor
 				</a>
 				';}
+				if(authorized(3)){echo '
+				<div class="action drawer-handle" id="dh-reports">
+					Reports
+				</div>
+				<div class="drawer" id="d-reports">
+					<a class="action stored" href="./myreport.php">
+						Monthy/Yearly Report
+					</a>
+				</div>
+				';}
 				if(authorized(4)){echo '
 				<div class="action drawer-handle" id="dh-admin">
 					Administration

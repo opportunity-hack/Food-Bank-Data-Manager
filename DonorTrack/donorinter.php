@@ -83,6 +83,35 @@ function addDonation($fields){
 	}
 }
 
+function getMYReport ($date)
+{
+	global $pypath;
+	try
+	{
+		$date = new DateTime($date);
+	}
+	catch (Exception $ex)
+	{
+		$date = new DateTime();
+	}
+	
+	$script_folder = "../FBM Utility/";
+	$olddir = getcwd();
+	chdir($script_folder);
+	$pyInter = shell_exec("$pypath \"GenerateMonthlyReport.py\" \"".$date->format("Y-m")."\"");
+	chdir($olddir);
+	$filename = $script_folder . trim($pyInter);
+	if (trim($pyInter) !== "" && file_exists($filename))
+	{
+		return $filename;
+	}
+	else
+	{
+		error_log("myreport script broke");
+		return false;
+	}
+}
+
 if(empty($_SESSION["donorlist"]) || (!empty($_SESSION["donorlist_timestamp"]) && $_SESSION["donorlist_timestamp"]+3600<time())){
 	refreshDonorList();
 }elseif($_SESSION["donorlist"]=="pending"){
