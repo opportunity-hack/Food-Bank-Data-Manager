@@ -202,10 +202,6 @@ body {
 	text-shadow: none;
 	display: flex;
 }
-.frame-fill{
-	flex-grow: 1;
-	border: 0;
-}
 #landing {
 	width: 300px;
 }
