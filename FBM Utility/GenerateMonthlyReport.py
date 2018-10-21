@@ -11,6 +11,26 @@ from FoodBankManager import FBM
 
 donor_catagories = ["Grocery", "Org/Corp", "Individual", "Church", "Purchased", "Senior program"]
 
+
+def add_data(chart, data, from_rows=False, titles_from_data=False, title=None):
+	"""
+	Add a range of data in a single pass.
+	The default is to treat each column as a data series.
+	"""
+	if not isinstance(data, openpyxl.chart.Reference):
+		data = openpyxl.chart.Reference(range_string=data)
+
+	if from_rows:
+		values = data.rows
+
+	else:
+		values = data.cols
+
+	for v in values:
+		range_string = u"{0}!{1}:{2}".format(data.sheetname, v[0], v[-1])
+		series = openpyxl.chart.series_factory.SeriesFactory(range_string, title_from_data=titles_from_data, title=title)
+		self.ser.append(series)
+
 def FindLastMonthsDates():
 	"""
 	Finds the first and last days of last month
@@ -140,6 +160,36 @@ def WriteExcelSheet(name, month=None, year=None):
 	ws['N18'] = ""
 
 	ws.freeze_panes = "B3"
+
+	c1 = openpyxl.chart.LineChart()
+	c1.title = "Food Income (Lbs), Large sources"
+	data = openpyxl.chart.Reference(*(ws,) + openpyxl.utils.cell.range_boundaries("A3:M4"))
+	c1.add_data(data, titles_from_data=True, from_rows=True)
+	ws.add_chart(c1, "B20")
+
+	c1 = openpyxl.chart.LineChart()
+	c1.title = "Food Income (Lbs), All Other Sources"
+	data = openpyxl.chart.Reference(*(ws,) + openpyxl.utils.cell.range_boundaries("A5:M8"))
+	c1.add_data(data, titles_from_data=True, from_rows=True)
+	ws.add_chart(c1, "H20")
+
+	c1 = openpyxl.chart.LineChart()
+	c1.title = "Ending Inventory (lbs)"
+	data = openpyxl.chart.Reference(*(ws,) + openpyxl.utils.cell.range_boundaries("A18:M18"))
+	c1.add_data(data, titles_from_data=True, from_rows=True)
+	ws.add_chart(c1, "N20")
+
+	c1 = openpyxl.chart.LineChart()
+	c1.title = "Waste (lbs)"
+	data = openpyxl.chart.Reference(*(ws,) + openpyxl.utils.cell.range_boundaries("A10:M10"))
+	c1.add_data(data, titles_from_data=True, from_rows=True)
+	ws.add_chart(c1, "B35")
+
+	c1 = openpyxl.chart.LineChart()
+	c1.title = "Clients"
+	data = openpyxl.chart.Reference(*(ws,) + openpyxl.utils.cell.range_boundaries("A13:M15"))
+	c1.add_data(data, titles_from_data=True, from_rows=True)
+	ws.add_chart(c1, "H35")
 
 	wb.save("{}.xlsx".format(name))
 	return "{}.xlsx".format(name)
