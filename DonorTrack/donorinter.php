@@ -107,7 +107,7 @@ function getMYReport ($date)
 	}
 	else
 	{
-		error_log("myreport script broke");
+		error_log("myreport script broke:\n$pyInter");
 		return false;
 	}
 }
@@ -144,7 +144,7 @@ function getRangeReport ($report, $date_start, $date_end)
 	}
 	else
 	{
-		error_log("main fbmutil script broke");
+		error_log("main fbmutil script broke:\n$pyInter");
 		return false;
 	}
 }

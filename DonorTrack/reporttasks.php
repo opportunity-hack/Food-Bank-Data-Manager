@@ -4,26 +4,32 @@ include($_SERVER['DOCUMENT_ROOT'].'/cxa/meta.php');
 
 use CXA\Util;
 
-if (isset($_POST["go"]))
+if (isset($_POST["action"]))
 {
-	chdir("../FBM Utility/");
-	if (empty(trim(shell_exec("$pypath \"GenerateGraphs.py\" 2>&1"))))
+	switch($_POST["action"])
 	{
-		$regmsg = "Graphs Regenerated Successfully!";
-		$regtitle = "Regenerate Graphs";
-		include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/reg-ok.php');
-		exit();
+		case "graphregen":
+			chdir("../FBM Utility/");
+			if (empty(trim(shell_exec("$pypath \"GenerateGraphs.py\" 2>&1"))))
+			{
+				$regmsg = "Graphs Regenerated Successfully!";
+				$regtitle = "Regenerate Graphs";
+				include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/reg-ok.php');
+				exit();
+			}
+			else
+			{
+				$interError = true;
+			}
+			break;
 	}
-	else
-	{
-		$interError = true;
-	}
+	
 }
 ?>
 <html>
 	<head>
-		<title>Regenerate Graphs - MCDM DonorTrack</title>
-		<link rel="stylesheet" type="text/css" href="cxa/css/cxa-ui.css">
+		<title>Report Administration - MCDM DonorTrack</title>
+		<link rel="stylesheet" type="text/css" href="cxa/css/cxa-flex.css">
 		<link rel="icon" type="image/png" href="cxa/img/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
@@ -47,9 +53,9 @@ if (isset($_POST["go"]))
 				<?php cxa_header() ?>
 			</div>
 			<div class="welcomebar">
-				Regenerate Graphs<br/>
+				Report Administration<br/>
 			</div>
-			<form action="graphregen.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
+			<form action="reporttasks.php" method="post" id="login" style="">
 				<?php
 				if (isset($interError))
 				{
@@ -60,11 +66,11 @@ if (isset($_POST["go"]))
 				<?php
 				}
 				?>
-				<input type="hidden" name="go" value="go" />
-				<input type="submit" style="position: absolute; height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" tabindex="-1" />
-				<p class="ilabel" style="margin-top: 16px;">This may take a while. Please be patient.</span></p>
+				<button type="submit" class="loginbutton" name="action" value="graphregen">
+					Regenerate Graphs
+				</button>
+				<p class="flabel" style="margin-top: 16px;">These tasks may take a while. Please be patient.</span></p>
 			</form>
-			<div id="bottombar" class="loginbar noselect" onclick="return special_submit();">Generate&nbsp;&nbsp;</div>
 			<div id="footer" class="loginbar"><?php cxa_footer() ?></div>
 		</div>
 		<script>
