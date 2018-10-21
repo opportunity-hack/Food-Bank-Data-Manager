@@ -98,7 +98,7 @@ function getMYReport ($date)
 	$script_folder = "../FBM Utility/";
 	$olddir = getcwd();
 	chdir($script_folder);
-	$pyInter = shell_exec("$pypath \"GenerateMonthlyReport.py\" \"".$date->format("Y-m")."\"");
+	$pyInter = shell_exec("$pypath \"GenerateMonthlyReport.py\" \"".$date->format("m")."\" \"".$date->format("Y")."\"");
 	chdir($olddir);
 	$filename = $script_folder . trim($pyInter);
 	if (trim($pyInter) !== "" && file_exists($filename))

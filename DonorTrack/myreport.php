@@ -9,8 +9,9 @@ if (!empty($_POST["date"]))
 	$filename = getMYReport($_POST["date"]);
 	if ($filename !== false)
 	{
+		$sfname = basename($filename);
 		header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		header("Content-Disposition: attachment; filename=\"MCDM-MYReport.xlsx\"");
+		header("Content-Disposition: attachment; filename=\"MCDM-MY$sfname\"");
 		echo(file_get_contents($filename));
 		exit();
 	}
