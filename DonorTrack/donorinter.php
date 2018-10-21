@@ -135,7 +135,7 @@ function getRangeReport ($report, $date_start, $date_end)
 	$script_folder = "../FBM Utility/";
 	$olddir = getcwd();
 	chdir($script_folder);
-	$pyInter = shell_exec("$pypath \"FoodBankManager.py\" \"$report\" \"".$date_start->format("Y-m-d")."\" \"".$date_end->format("Y-m-d")."\"");
+	$pyInter = shell_exec("$pypath \"FoodBankManager.py\" \"".escapeshellarg($report)."\" \"".$date_start->format("Y-m-d")."\" \"".$date_end->format("Y-m-d")."\"");
 	chdir($olddir);
 	$filename = $script_folder . trim($pyInter);
 	if (trim($pyInter) !== "" && file_exists($filename))
