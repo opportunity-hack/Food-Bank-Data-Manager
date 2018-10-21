@@ -126,7 +126,7 @@ boot_user(4);
 			function ()
 			{
 				var table = new Table($('#split-c'), tUsers);
-				$('#refresher').click(table.refresh);
+				$('#refresher').click(function(){table.refresh();});
 			}
 		);
 		$(document).ready(CXAUI);
