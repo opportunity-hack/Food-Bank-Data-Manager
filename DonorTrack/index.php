@@ -67,6 +67,9 @@ if(isset($_SESSION["userdata"])){
 					<a class="action stored" href="./guestreport.php">
 						Guest/Outreach Report
 					</a>
+					<a class="action stored" href="./graphregen.php">
+						Regenerate Graphs
+					</a>
 				</div>
 				';}
 				if(authorized(4)){echo '
