@@ -24,6 +24,7 @@ CREATE TABLE `dashboard_data` (
 ) ENGINE=InnoDB;
 
 
+DROP TABLE IF EXISTS `grocery_list`;
 CREATE TABLE `grocery_list` (
   `name` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB;
