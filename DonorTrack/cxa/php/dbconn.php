@@ -28,10 +28,15 @@ $conn->select_db($dbname);
 
 $patches = Array(
 	Array(
-		"from" => 0,
-		"to" => 2.0,
-		"file" => "/sql/bootstrap.sql"
+		"from" => 2.0,
+		"to" => 2.01,
+		"file" => "/sql/patch_2.0_2.01.sql"
 	),
+	Array(
+		"from" => 0,
+		"to" => 2.01,
+		"file" => "/sql/bootstrap.sql"
+	)
 );
 
 $versioned = !!$conn->query("SELECT * FROM information_schema.tables WHERE table_schema = '$dbname' AND table_name = 'schema_version' LIMIT 1")->num_rows;
@@ -42,7 +47,6 @@ if($version < $appdb_version){error_log("Database requires upgrade, $version < $
 
 while($version < $appdb_version){
 	foreach($patches as $patch){
-		error_log("to 6\n");
 		if($patch["from"] <= $version && $version < $patch["to"]){
 			Util::run("mysql --user=$username --password=$password --host=$servername --port=$serverport $dbname < ".__DIR__.$patch["file"]);
 			$version = $patch["to"];
