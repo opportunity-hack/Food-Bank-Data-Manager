@@ -58,6 +58,7 @@ TableRow.prototype.remove = function ()
 {
 	this.row.empty();
 	this.row.remove();
+	delete this;
 };
 
 TableRow.prototype.set_data = function (data)
@@ -78,12 +79,43 @@ TableRow.prototype.get_data = function ()
 
 TableRow.prototype.open = function ()
 {
+	this.row.addClass('active-remote');
 	
+	for (var column in this.cells)
+	{
+		this.cells[column].open();
+	}
 };
 
 TableRow.prototype.close = function ()
 {
+	ok = true;
 	
+	for (var column in this.cells)
+	{
+		ok = ok && this.cells[column].validate();
+	}
+	
+	if (ok)
+	{
+		for (var column in this.cells)
+		{
+			this.cells[column].close();
+		}
+		
+		this.row.removeClass('active-remote');
+	}
+	else
+	{
+		console.log("Failed validation!");
+	}
+};
+
+TableRow.prototype.del = function ()
+{
+	// server interface here
+	this.remove();
+	delete this.table.data_rows[this.primary_key];
 };
 
 
@@ -180,7 +212,7 @@ TableCell.prototype.create = function ()
 	}
 	this.container.appendTo(this.row.row);
 	
-	this.open = false;
+	this.is_open = false;
 	this.open_class = 'editable';
 	this.error_class = 'error';
 	this.open_input = $(elems.text);
@@ -207,21 +239,26 @@ TableCell.prototype.open = function ()
 {
 	this.container.empty();
 	this.container.addClass(this.open_class);
-	this.container.append(open_input);
+	this.container.append(this.open_input);
 	this.open_input.val(this._data);
+	this.is_open = true;
 };
 
 TableCell.prototype.validate = function ()
 {
-	if (this.open)
+	if (this.is_open)
 	{
-		if(this.open_input.val())
+		if (('mandatory' in this.row.table.specification.columns[this.column]
+			&& this.row.table.specification.columns[this.column].mandatory == false)
+			|| this.open_input.val())
 		{
+				
 			this.container.removeClass(this.error_class);
 			return true;
 		}
 		else
 		{
+			console.log(this.column + " failed validation!");
 			this.container.addClass(this.error_class);
 			return false;
 		}
@@ -237,8 +274,9 @@ TableCell.prototype.close = function ()
 {
 	this._data = this.open_input.val();
 	this.container.removeClass(this.open_class);
-	this.open_input.detatch();
+	this.open_input.detach();
 	this.container.text(this._data);
+	this.is_open = false;
 };
 
 
@@ -268,6 +306,72 @@ TableCellClasses.ID.prototype.constructor = TableCell;
 TableCellClasses.EditButton = function () {TableCell.apply(this, arguments);};
 TableCellClasses.EditButton.prototype = Object.create(TableCell.prototype);
 TableCellClasses.EditButton.prototype.constructor = TableCell;
+
+TableCellClasses.EditButton.prototype.create = function ()
+{
+	this.container = $(elems.td);
+	if ('cell_style' in this.row.table.specification.columns[this.column])
+	{
+		this.container.addClass(this.row.table.specification.columns[this.column].cell_style);
+	}
+	this.container.appendTo(this.row.row);
+	
+	this.is_open = false;
+	this.open_class = 'editable';
+	this.error_class = 'error';
+	this.open_input = $(elems.text);
+	this.open_input.addClass('tinput');
+	
+	this.button_edit = $(elems.div);
+	this.button_edit.addClass('editbtn');
+	this.button_edit.click({real_this: this}, this.dispatch_edit_click);
+	this.button_edit.appendTo(this.container);
+	
+	this.button_delete = $(elems.div);
+	this.button_delete.addClass('delbtn');
+	this.button_delete.click({row:this.row}, function(event){event.data.row.del();});
+	this.button_delete.appendTo(this.container);
+	this.button_delete.hide()
+	/*
+	this.button_delete.attr('tip', 'REMOVE USER').mousemove(function(){
+		ttc.show().css("left",event.pageX-127).css("top",event.pageY).text($(this).attr("tip"));
+	}).mouseout(function(event){
+		ttc.hide();
+	});
+	*/
+};
+
+TableCellClasses.EditButton.prototype.set_data = function (data)
+{
+	// Pass
+};
+
+TableCellClasses.EditButton.prototype.open = function (data)
+{
+	this.button_edit.addClass('uneditbtn');
+	this.button_delete.show();
+	this.is_open = true;
+};
+
+TableCellClasses.EditButton.prototype.close = function (data)
+{
+	this.button_edit.removeClass('uneditbtn');
+	this.button_delete.hide();
+	this.is_open = false;
+};
+
+TableCellClasses.EditButton.prototype.dispatch_edit_click = function (event)
+{
+	console.log(event.data.real_this);
+	if (event.data.real_this.is_open)
+	{
+		event.data.real_this.row.close();
+	}
+	else
+	{
+		event.data.real_this.row.open();
+	}
+}
 
 
 TableCellClasses.Approver = function () {TableCell.apply(this, arguments);};

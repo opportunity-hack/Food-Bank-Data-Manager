@@ -54,7 +54,7 @@ boot_user(4);
 					label:      'New Password',
 					cell_class: 'Password',
 					cell_style: 'col-18',
-					mandatory:  true
+					mandatory:  false
 				},
 				'otpsecret': {
 					label:      'TOTP Secret',
