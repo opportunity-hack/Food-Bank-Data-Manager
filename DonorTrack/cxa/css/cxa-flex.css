@@ -21,7 +21,7 @@ body {
 	background: #efd;
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
-#main, #home{
+#main{
 	position: absolute;
 	min-height: 375px;
 	width: 300px;
@@ -33,35 +33,28 @@ body {
 	transform: translateY(-50%) translateX(-50%);
 	-webkit-transform: translateY(-50%) translateX(-50%);
 	-ms-transform: translateY(-50%) translateX(-50%);
-	padding-bottom: 25px;
+	display: flex;
+	flex-direction: column;
 }
-#home{
-	min-height: 500px;
-	width: 90%;
-	max-width: 500px;
-	min-width: 275px;
-	padding: 0px;
-}
-#bigmain {
+#fill-main{
 	position: absolute;
-	height: 90%;
-	width: 90%;
-	min-width: 700px;
-	top: 5%;
-	left: 5%;
-	right: 5%;
-	bottom: 5%;
-	margin: 0px;
-	background: #fff;
+	margin: 0;
+	border: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #f8f8f8;
 	text-align: left;
-	box-shadow: 0px 2px 20px 0px black;
+	display: flex;
+	flex-direction: column;
 }
 	
 .loginbar, .welcomebar{
 	font-weight: bold;
 	padding: 8px 4px 4px 6px;
 	width: 290px;
-	height: 28px;
+	flex-basis: 21px;
 }
 #topbar {
 	text-align: left;
@@ -70,11 +63,13 @@ body {
 	padding-left:1px;
 	width: auto;
 	background: #9BDA67;
+	flex-shrink: 0;
+	flex-grow: 0;
 }
 #bottombar, .bottombutton {
-	position: absolute;
-	bottom: 25px;
-	height: 25px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	flex-basis: 25px;
 	width: 284px;
 	padding: 6px 8px 4px 8px;
 	text-align: right;
@@ -185,26 +180,26 @@ body {
 	background: #40800B;
 }
 #footer{
-	position: absolute;
-	bottom: 0px;
 	font-weight: bold;
 	font-size: 10px;
 	background: #40800B;
-	height: 13px;
-	left: 0px;
-	right: 0px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	flex-basis: 13px;
 	padding: 8px 4px 4px 6px;
 }
-#login,#content{
+#login{
+	flex-grow: 1;
 	padding: 15px 30px 15px 30px;
-	width: 240px;
 	color: black;
 	text-shadow: none;
 	margin-bottom: 45px;
 }
 #content{
-	width: auto;
-	height: auto;
+	flex-grow: 1;
+	color: black;
+	text-shadow: none;
+	display: flex;
 }
 #landing {
 	width: 300px;
@@ -296,6 +291,11 @@ body {
 	background: #eee;
 	box-shadow: 1px 1px 6px -1px black;
 	cursor: pointer;
+	border: none;
+	box-sizing: content-box;
+    text-align: inherit;
+    font-family: inherit;
+    font-size: inherit;
 }
 .logincenter{
 	display: block;
@@ -403,9 +403,10 @@ body {
 }
 .hdrbtn{
 	display: inline-block;
+	float: right;
 	position: relative;
-	bottom: 2px;
-	margin: 0px 4px 0px 4px;
+	bottom: -2px;
+	margin: 0px 6px 0px 6px;
 	padding: 0px 4px 0px 4px;
 	box-shadow: 1px 1px 6px -1px black;
 	font-size: 20px;
@@ -427,21 +428,28 @@ body {
 }
 .hdrin{
 	display: inline-block;
+	float: right;
 	position: relative;
-	bottom: 5px;
-	margin: 0px 4px 0px -4px;
+	bottom: -2px;
+	margin: 0px 6px 0px 6px;
 	padding: 0px 4px 0px 4px;
 	box-shadow: 1px 1px 6px -1px black;
-	font-size: 14px;
+	font-size: 18px;
 	height: 23px;
 	line-height: 23px;
 	border: none;
-	background: #FEFEFE;
+	background: #53981b;
+	text-shadow: none;
 }
 /****************** MCDM DonorTrack Specific */
 .ilabel{
 	display: inline-block;
 	min-width: 40%;
+	margin: 4px 0px 2px 0px;
+}
+.flabel{
+	display: block;
+	width: 240px;
 	margin: 4px 0px 2px 0px;
 }
 #results {

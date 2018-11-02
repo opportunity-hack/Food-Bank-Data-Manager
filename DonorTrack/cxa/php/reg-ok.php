@@ -8,13 +8,13 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 -->
 
 <?php
-require_once('meta.php');
+require_once(__DIR__ . "/../meta.php");
 ?>
 <html>
 	<head>
 		<title><?=$GLOBALS["sitetitle"]?> - <?=(!empty($regtitle) ? $regtitle : "Registration Successful")?></title>
-		<link rel="stylesheet" type="text/css" href="css/cxa-ui.css">
-		<link rel="icon" type="image/png" href="./img/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="/cxa/css/cxa-ui.css">
+		<link rel="icon" type="image/png" href="/cxa/img/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
