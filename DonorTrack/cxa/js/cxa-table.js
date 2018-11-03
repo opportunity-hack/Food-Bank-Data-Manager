@@ -74,7 +74,14 @@ TableRow.prototype.set_data = function (data)
 
 TableRow.prototype.get_data = function ()
 {
+	data = {}
 	
+	for (var column in this.cells)
+	{
+		data[column] = this.cells[column].get_data();
+	}
+	
+	return data;
 };
 
 TableRow.prototype.open = function ()
@@ -98,18 +105,48 @@ TableRow.prototype.close = function ()
 	
 	if (ok)
 	{
-		for (var column in this.cells)
+		data = this.get_data();
+		data[this.table.specification.data.row_pkid] = this.primary_key;
+		
+		if (true)
 		{
-			this.cells[column].close();
+			action = this.table.specification.data.set_action;
+		}
+		else
+		{
+			// There are not yet tables implemented with the new action
+			action = this.table.specification.data.new_action;
+			delete data[this.table.specification.data.row_pkid];
 		}
 		
-		this.row.removeClass('active-remote');
-	}
-	else
-	{
-		console.log("Failed validation!");
+		$.post(
+			this.table.specification.data.address,
+			{
+				action: this.table.specification.data.set_action,
+				data: data
+			},
+			(function(row){return function (resp)
+			{
+				if (resp != "ok")
+				{
+					console.error("Server error when updating row ("+this.primary_key+") : " + resp);
+					row.table.refresh();
+				}
+				else
+				{
+					for (var column in row.cells)
+					{
+						row.cells[column].close();
+					}
+					
+					row.row.removeClass('active-remote');
+				}
+			}}(this))
+		);
 	}
 };
+
+TableRow.prototype.close_callback
 
 TableRow.prototype.del = function ()
 {
@@ -181,6 +218,7 @@ TableHeaderRow.prototype.adjust_header = function ()
 
 function TableTailRow (table)
 {
+	// No tables exist yet with new action
 	this.table = table;
 }
 
@@ -232,6 +270,7 @@ TableCell.prototype.set_data = function (data)
 
 TableCell.prototype.get_data = function ()
 {
+	this._data = this.open_input.val();
 	return this._data;
 };
 
@@ -286,6 +325,53 @@ var TableCellClasses = {};
 TableCellClasses.Remote = function () {TableCell.apply(this, arguments);};
 TableCellClasses.Remote.prototype = Object.create(TableCell.prototype);
 TableCellClasses.Remote.prototype.constructor = TableCell;
+
+TableCellClasses.Remote.prototype.create = function ()
+{
+	this.container = $(elems.td);
+	if ('cell_style' in this.row.table.specification.columns[this.column])
+	{
+		this.container.addClass(this.row.table.specification.columns[this.column].cell_style);
+	}
+	this.container.appendTo(this.row.row);
+	
+	this.is_open = false;
+	this.open_class = 'editable';
+	this.error_class = 'error';
+};
+
+TableCellClasses.Remote.prototype.remove = function ()
+{
+	this.container.remove();
+};
+
+TableCellClasses.Remote.prototype.set_data = function (data)
+{
+	this._data = data;
+	this.container.text(data);
+};
+
+TableCellClasses.Remote.prototype.get_data = function ()
+{
+	return this._data;
+};
+
+TableCellClasses.Remote.prototype.open = function ()
+{
+	this.container.addClass(this.open_class);
+	this.is_open = true;
+};
+
+TableCellClasses.Remote.prototype.validate = function ()
+{
+	return true;
+};
+
+TableCellClasses.Remote.prototype.close = function ()
+{
+	this.container.removeClass(this.open_class);
+	this.is_open = false;
+};
 
 
 TableCellClasses.Number = function () {TableCell.apply(this, arguments);};
@@ -362,7 +448,6 @@ TableCellClasses.EditButton.prototype.close = function (data)
 
 TableCellClasses.EditButton.prototype.dispatch_edit_click = function (event)
 {
-	console.log(event.data.real_this);
 	if (event.data.real_this.is_open)
 	{
 		event.data.real_this.row.close();
