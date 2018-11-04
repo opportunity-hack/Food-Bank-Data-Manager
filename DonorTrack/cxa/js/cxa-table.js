@@ -18,7 +18,8 @@ var elems = {
 	'td':    '<td></td>',
 	'tr':    '<tr></tr>',
 	'div':   '<div></div>',
-	'text':  '<input type="text" />'
+	'text':  '<input type="text" />',
+	'a':     '<a></a>'
 };
 
 function scroll_width ()
@@ -78,7 +79,11 @@ TableRow.prototype.get_data = function ()
 	
 	for (var column in this.cells)
 	{
-		data[column] = this.cells[column].get_data();
+		value = this.cells[column].get_data();
+		if (value !== null)
+		{
+			data[column] = value;
+		}
 	}
 	
 	return data;
@@ -123,8 +128,8 @@ TableRow.prototype.close = function ()
 		$.post(
 			this.table.specification.data.address,
 			{
-				action: action,
-				data: data
+				'action': action,
+				'data':   data
 			},
 			(function(row){return function (resp)
 			{
@@ -155,8 +160,8 @@ TableRow.prototype.del = function ()
 	$.post(
 		this.table.specification.data.address,
 		{
-			action: this.table.specification.data.del_action,
-			data: data
+			'action': this.table.specification.data.del_action,
+			'data':   data
 		},
 		(function(row){return function (resp)
 		{
@@ -414,13 +419,44 @@ TableCellClasses.Number.prototype.validate = function ()
 	}
 };
 
-TableCellClasses.Remote.prototype.close = function ()
+TableCellClasses.Number.prototype.get_data = function ()
 {
-	this._data = this.open_input.val();
-	this.container.removeClass(this.open_class);
-	this.open_input.detach();
-	this.container.text(this._data);
-	this.is_open = false;
+	return Number(this.open_input.val());
+};
+
+
+TableCellClasses.Integer = function () {TableCell.apply(this, arguments);};
+TableCellClasses.Integer.prototype = Object.create(TableCell.prototype);
+TableCellClasses.Integer.prototype.constructor = TableCell;
+
+TableCellClasses.Integer.prototype.validate = function ()
+{
+	if (this.is_open)
+	{
+		if (('mandatory' in this.row.table.specification.columns[this.column]
+			&& this.row.table.specification.columns[this.column].mandatory == false)
+			|| this.open_input.val().match(/^-{0,1}\d+$/))
+		{
+				
+			this.container.removeClass(this.error_class);
+			return true;
+		}
+		else
+		{
+			this.container.addClass(this.error_class);
+			return false;
+		}
+	}
+	else
+	{
+		// Validating while not open is an unsupported scenario.
+		return null;
+	}
+};
+
+TableCellClasses.Integer.prototype.get_data = function ()
+{
+	return parseInt(this.open_input.val());
 };
 
 
@@ -539,12 +575,12 @@ TableCellClasses.Approver.prototype.set_data = function (data)
 
 TableCellClasses.Approver.prototype.get_data = function ()
 {
-	return this.input.val();
+	return parseInt(this.input.val());
 };
 
 TableCellClasses.Approver.prototype.validate = function ()
 {
-	if (!isNaN(this.input.val()))
+	if (this.input.val().match(/^-{0,1}\d+$/))
 	{
 		this.container.removeClass(this.error_class);
 		return true;
@@ -567,8 +603,8 @@ TableCellClasses.Approver.prototype.approve = function()
 		$.post(
 			this.row.table.specification.data.address,
 			{
-				action: this.row.table.specification.columns[this.column].action,
-				data: data
+				'action': this.row.table.specification.columns[this.column].action,
+				'data':   data
 			},
 			(function(cell){return function (resp)
 			{
@@ -590,6 +626,111 @@ TableCellClasses.Approver.prototype.approve = function()
 TableCellClasses.Password = function () {TableCell.apply(this, arguments);};
 TableCellClasses.Password.prototype = Object.create(TableCell.prototype);
 TableCellClasses.Password.prototype.constructor = TableCell;
+
+TableCellClasses.Password.prototype.create = function ()
+{
+	this.container = $(elems.td);
+	if ('cell_style' in this.row.table.specification.columns[this.column])
+	{
+		this.container.addClass(this.row.table.specification.columns[this.column].cell_style);
+	}
+	this.container.appendTo(this.row.row);
+	
+	this.is_open = false;
+	this.open_class = 'editable';
+	this.error_class = 'error';
+	
+	this.open_input = $(elems.text);
+	this.open_input.addClass('tinput');
+	
+	this.reset_link = $(elems.a);
+	this.reset_link.text("get reset link");
+	this.reset_link.click({cell: this}, function(event){event.data.cell.get_reset_link()});
+	this.reset_link.appendTo(this.container);
+};
+
+TableCellClasses.Password.prototype.set_data = function (data)
+{
+	// Pass
+};
+
+TableCellClasses.Password.prototype.get_data = function ()
+{
+	if (this.open_input.val() == "")
+	{
+		return null;
+	}
+	else
+	{
+		return this.open_input.val();
+	}
+};
+
+TableCellClasses.Password.prototype.open = function ()
+{
+	this.reset_link.detach();
+	this.container.addClass(this.open_class);
+	this.container.append(this.open_input);
+	this.is_open = true;
+};
+
+TableCellClasses.Password.prototype.close = function ()
+{
+	this.container.removeClass(this.open_class);
+	this.open_input.detach();
+	this.container.append(this.reset_link);
+	this.is_open = false;
+};
+
+TableCellClasses.Password.prototype.validate = function ()
+{
+	if (this.is_open)
+	{
+		if (('mandatory' in this.row.table.specification.columns[this.column]
+			&& this.row.table.specification.columns[this.column].mandatory == false)
+			|| this.row.primary_key == null
+			|| !this.open_input.val())
+		{
+				
+			this.container.removeClass(this.error_class);
+			return true;
+		}
+		else
+		{
+			this.container.addClass(this.error_class);
+			return false;
+		}
+	}
+	else
+	{
+		// Validating while not open is an unsupported scenario.
+		return null;
+	}
+};
+
+TableCellClasses.Password.prototype.get_reset_link = function ()
+{
+	$.post(
+		this.row.table.specification.data.address,
+		{
+			'action': this.row.table.specification.columns[this.column].reset_action,
+			'data':   this.row.primary_key
+		},
+		(function(cell){return function(resp)
+		{
+			if (typeof resp === "string" && resp.includes("http"))
+			{
+				resp = resp.substring(0, resp.length-2);
+				window.open(resp, '_blank').focus();
+			}
+			else
+			{
+				console.error("Error while getting reset link for password on row ("+cell.row.primary_key+"): "+resp);
+			}
+		}}(this)),
+		"text"
+	);
+}
 
 
 function Table (container, specification)

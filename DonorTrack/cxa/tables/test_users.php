@@ -51,10 +51,11 @@ boot_user(4);
 					mandatory:  true
 				},
 				'password': {
-					label:      'New Password',
-					cell_class: 'Password',
-					cell_style: 'col-18',
-					mandatory:  false
+					label:        'New Password',
+					cell_class:   'Password',
+					cell_style:   'col-18',
+					reset_action: 'resetuserpassword',
+					mandatory:    false
 				},
 				'otpsecret': {
 					label:      'TOTP Secret',
@@ -65,7 +66,7 @@ boot_user(4);
 				'authorization': {
 					label:      'Auth',
 					label_tip:  'Authorization Level',
-					cell_class: 'Number',
+					cell_class: 'Integer',
 					cell_style: 'col-7',
 					mandatory:  true
 				},
@@ -85,42 +86,6 @@ boot_user(4);
 				del_action: 'deluser'
 			}
 		};
-		
-
-		function scrollWidth ()
-		{
-			var outer = $('<div></div>').css({visibility: 'hidden', width: 25, overflow: 'scroll'}).appendTo('body');
-			var inner = $('<div></div>').css({width: '100%'}).appendTo(outer).outerWidth();
-			outer.remove();
-			return 25 - inner;
-		}
-		
-		function adjustHeader ()
-		{
-			$(".theader").css('padding-right', scrollWidth);
-		}
-		
-		function doUsers(){
-			$.post(interAddress,{action:"getusers",data:""},function(data){
-				if(!data){
-					serverError();
-				}else{
-					populateTable('#userboard', cElements, data, tUsers);
-				}
-			},"json");
-		}
-		
-		function refresh ()
-		{
-			doUsers();
-			serverFail = false;
-		}
-		
-		
-		//refresh();
-		//$("#refresher").click(refresh);
-		//adjustHeader();
-		//$(window).resize(adjustHeader);
 		
 		$(document).ready(
 			function ()
