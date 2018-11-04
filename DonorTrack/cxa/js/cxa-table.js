@@ -108,6 +108,7 @@ TableRow.prototype.close = function ()
 		data = this.get_data();
 		data[this.table.specification.data.row_pkid] = this.primary_key;
 		
+		action = null;
 		if (true)
 		{
 			action = this.table.specification.data.set_action;
@@ -122,14 +123,14 @@ TableRow.prototype.close = function ()
 		$.post(
 			this.table.specification.data.address,
 			{
-				action: this.table.specification.data.set_action,
+				action: action,
 				data: data
 			},
 			(function(row){return function (resp)
 			{
 				if (resp != "ok")
 				{
-					console.error("Server error when updating row ("+this.primary_key+") : " + resp);
+					console.error("Server error when updating row ("+row.primary_key+") : " + resp);
 					row.table.refresh();
 				}
 				else
@@ -146,13 +147,31 @@ TableRow.prototype.close = function ()
 	}
 };
 
-TableRow.prototype.close_callback
-
 TableRow.prototype.del = function ()
 {
-	// server interface here
-	this.remove();
-	delete this.table.data_rows[this.primary_key];
+	data = {};
+	data[this.table.specification.data.row_pkid] = this.primary_key;
+	
+	$.post(
+		this.table.specification.data.address,
+		{
+			action: this.table.specification.data.del_action,
+			data: data
+		},
+		(function(row){return function (resp)
+		{
+			if (resp != "ok")
+			{
+				console.error("Server error when deleting row ("+row.primary_key+") : " + resp);
+				row.table.refresh();
+			}
+			else
+			{
+				row.remove();
+				delete row.table.data_rows[this.primary_key];
+			}
+		}}(this))
+	);
 };
 
 
@@ -212,7 +231,7 @@ TableHeaderRow.prototype.remove = function ()
 
 TableHeaderRow.prototype.adjust_header = function ()
 {
-	this.header_adjust_column.css('padding-right', scrollWidth);
+	this.header_adjust_column.css('padding-right', scroll_width);
 };
 
 
@@ -264,14 +283,13 @@ TableCell.prototype.remove = function ()
 
 TableCell.prototype.set_data = function (data)
 {
-	this._data = data;
 	this.container.text(data);
+	this.open_input.val(data);
 };
 
 TableCell.prototype.get_data = function ()
 {
-	this._data = this.open_input.val();
-	return this._data;
+	return this.open_input.val();
 };
 
 TableCell.prototype.open = function ()
@@ -279,7 +297,6 @@ TableCell.prototype.open = function ()
 	this.container.empty();
 	this.container.addClass(this.open_class);
 	this.container.append(this.open_input);
-	this.open_input.val(this._data);
 	this.is_open = true;
 };
 
@@ -297,7 +314,6 @@ TableCell.prototype.validate = function ()
 		}
 		else
 		{
-			console.log(this.column + " failed validation!");
 			this.container.addClass(this.error_class);
 			return false;
 		}
@@ -311,10 +327,9 @@ TableCell.prototype.validate = function ()
 
 TableCell.prototype.close = function ()
 {
-	this._data = this.open_input.val();
 	this.container.removeClass(this.open_class);
 	this.open_input.detach();
-	this.container.text(this._data);
+	this.container.text(this.open_input.val());
 	this.is_open = false;
 };
 
@@ -338,11 +353,7 @@ TableCellClasses.Remote.prototype.create = function ()
 	this.is_open = false;
 	this.open_class = 'editable';
 	this.error_class = 'error';
-};
-
-TableCellClasses.Remote.prototype.remove = function ()
-{
-	this.container.remove();
+	this._data = null;
 };
 
 TableCellClasses.Remote.prototype.set_data = function (data)
@@ -378,15 +389,44 @@ TableCellClasses.Number = function () {TableCell.apply(this, arguments);};
 TableCellClasses.Number.prototype = Object.create(TableCell.prototype);
 TableCellClasses.Number.prototype.constructor = TableCell;
 
+TableCellClasses.Number.prototype.validate = function ()
+{
+	if (this.is_open)
+	{
+		if (('mandatory' in this.row.table.specification.columns[this.column]
+			&& this.row.table.specification.columns[this.column].mandatory == false)
+			|| !isNaN(this.open_input.val()))
+		{
+				
+			this.container.removeClass(this.error_class);
+			return true;
+		}
+		else
+		{
+			this.container.addClass(this.error_class);
+			return false;
+		}
+	}
+	else
+	{
+		// Validating while not open is an unsupported scenario.
+		return null;
+	}
+};
+
+TableCellClasses.Remote.prototype.close = function ()
+{
+	this._data = this.open_input.val();
+	this.container.removeClass(this.open_class);
+	this.open_input.detach();
+	this.container.text(this._data);
+	this.is_open = false;
+};
+
 
 TableCellClasses.Text = function () {TableCell.apply(this, arguments);};
 TableCellClasses.Text.prototype = Object.create(TableCell.prototype);
 TableCellClasses.Text.prototype.constructor = TableCell;
-
-
-TableCellClasses.ID = function () {TableCell.apply(this, arguments);};
-TableCellClasses.ID.prototype = Object.create(TableCell.prototype);
-TableCellClasses.ID.prototype.constructor = TableCell;
 
 
 TableCellClasses.EditButton = function () {TableCell.apply(this, arguments);};
@@ -459,9 +499,92 @@ TableCellClasses.EditButton.prototype.dispatch_edit_click = function (event)
 }
 
 
-TableCellClasses.Approver = function () {TableCell.apply(this, arguments);};
-TableCellClasses.Approver.prototype = Object.create(TableCell.prototype);
-TableCellClasses.Approver.prototype.constructor = TableCell;
+TableCellClasses.Approver = function () {TableCellClasses.Remote.apply(this, arguments);};
+TableCellClasses.Approver.prototype = Object.create(TableCellClasses.Remote.prototype);
+TableCellClasses.Approver.prototype.constructor = TableCellClasses.Remote;
+
+TableCellClasses.Approver.prototype.create = function ()
+{
+	this.container = $(elems.td);
+	if ('cell_style' in this.row.table.specification.columns[this.column])
+	{
+		this.container.addClass(this.row.table.specification.columns[this.column].cell_style);
+	}
+	this.container.appendTo(this.row.row);
+	
+	this.is_open = false;
+	this.open_class = 'editable';
+	this.error_class = 'error';
+	
+	this.button_approve = $(elems.div);
+	this.button_approve.addClass('editbtn');
+	this.button_approve.addClass('uneditbtn');
+	this.button_approve.click({approver:this}, function(event){event.data.approver.approve();});
+	this.button_approve.appendTo(this.container);
+	
+	this.input = $(elems.text);
+	this.input.addClass('cinput');
+	this.input.appendTo(this.container);
+	
+	this.button_delete = $(elems.div);
+	this.button_delete.addClass('delbtn');
+	this.button_delete.click({row:this.row}, function(event){event.data.row.del();});
+	this.button_delete.appendTo(this.container);
+};
+
+TableCellClasses.Approver.prototype.set_data = function (data)
+{
+	this.input.val(data);
+};
+
+TableCellClasses.Approver.prototype.get_data = function ()
+{
+	return this.input.val();
+};
+
+TableCellClasses.Approver.prototype.validate = function ()
+{
+	if (!isNaN(this.input.val()))
+	{
+		this.container.removeClass(this.error_class);
+		return true;
+	}
+	else
+	{
+		this.container.addClass(this.error_class);
+		return false;
+	}
+};
+
+TableCellClasses.Approver.prototype.approve = function()
+{
+	if (this.validate())
+	{
+		data = {};
+		data[this.row.table.specification.data.row_pkid] = this.row.primary_key;
+		data[this.row.table.specification.columns[this.column].parameter] = this.get_data();
+		
+		$.post(
+			this.row.table.specification.data.address,
+			{
+				action: this.row.table.specification.columns[this.column].action,
+				data: data
+			},
+			(function(cell){return function (resp)
+			{
+				if (resp != "ok")
+				{
+					console.error("Server error when approving row ("+cell.row.primary_key+") : " + resp);
+					cell.row.table.refresh();
+				}
+				else
+				{
+					cell.row.remove();
+				}
+			}}(this))
+		);
+	}
+}
 
 
 TableCellClasses.Password = function () {TableCell.apply(this, arguments);};
