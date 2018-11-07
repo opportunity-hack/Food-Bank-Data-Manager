@@ -1,0 +1,110 @@
+{
+	"users": {
+		"columns": {
+			"userid": {
+				"label":      "ID",
+				"cell_class": "Remote",
+				"cell_style": "col-pre",
+				"mandatory":  false
+			},
+			"name": {
+				"label":      "Name",
+				"cell_class": "Text",
+				"cell_style": "col-18",
+				"mandatory":  true
+			},
+			"username": {
+				"label":      "Username",
+				"cell_class": "Text",
+				"cell_style": "col-18",
+				"mandatory":  true
+			},
+			"email": {
+				"label":      "E-Mail",
+				"cell_class": "Text",
+				"cell_style": "col-18",
+				"mandatory":  true
+			},
+			"password": {
+				"label":        "New Password",
+				"cell_class":   "Password",
+				"cell_style":   "col-18",
+				"reset_action": "resetuserpassword",
+				"reset_auth":   4,
+				"mandatory":    false
+			},
+			"otpsecret": {
+				"label":      "TOTP Secret",
+				"cell_class": "Text",
+				"cell_style": "col-18",
+				"mandatory":  false
+			},
+			"authorization": {
+				"label":      "Auth",
+				"label_tip":  "Authorization Level",
+				"cell_class": "Integer",
+				"cell_style": "col-7",
+				"mandatory":  true
+			},
+			"editrow": {
+				"label":      "",
+				"cell_class": "EditButton",
+				"cell_style": "col-post",
+				"mandatory":  false
+			}
+		},
+		"data": {
+			"title":      "User Management",
+			"row_class":  "row",
+			"row_pkid":   "userid",
+			"address":    "\/cxa\/userinter.php",
+			"get_action": "getusers",
+			"get_auth":   3,
+			"set_action": "setuser",
+			"set_auth":   4,
+			"del_action": "deluser",
+			"del_auth":   4,
+			"table_auth": 3
+		}
+	},
+	"limbo": {
+		"columns": {
+			"userid": {
+				"label":      "ID",
+				"cell_class": "Remote",
+				"cell_style": "col-pre"
+			},
+			"name": {
+				"label":      "Name",
+				"cell_class": "Remote",
+				"cell_style": "col-25"
+			},
+			"username": {
+				"label":      "Username",
+				"cell_class": "Remote",
+				"cell_style": "col-25"
+			},
+			"email": {
+				"label":      "E-Mail",
+				"cell_class": "Remote",
+				"cell_style": "col-25"
+			},
+			"approver": {
+				"label":      "",
+				"cell_class": "Approver",
+				"cell_style": "col-post",
+				"action":     "approveuser",
+				"parameter":  "authlevel"
+			}
+		},
+		"data": {
+			"title":      "Approve User Requests",
+			"row_class":  "row",
+			"row_pkid":   "userid",
+			"address":    "\/cxa\/userinter.php",
+			"get_action": "getlimbousers",
+			"del_action": "dellimbouser",
+			"table_auth": 3
+		}
+	}
+}
