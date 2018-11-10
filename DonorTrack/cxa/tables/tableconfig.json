@@ -3,7 +3,8 @@
 		"columns": {
 			"userid": {
 				"label":      "ID",
-				"cell_class": "Remote",
+				"cell_class": "Integer",
+				"remote":     true,
 				"cell_style": "col-pre",
 				"mandatory":  false
 			},
@@ -55,11 +56,12 @@
 		},
 		"data": {
 			"title":      "User Management",
+			"schema":     "users",
 			"row_class":  "row",
 			"row_pkid":   "userid",
-			"address":    "\/cxa\/userinter.php",
+			"address":    "\/cxa\/tables\/tables.php",
 			"get_action": "getusers",
-			"get_auth":   3,
+			"get_class":  "GetUsers",
 			"set_action": "setuser",
 			"set_auth":   4,
 			"del_action": "deluser",
@@ -71,22 +73,26 @@
 		"columns": {
 			"userid": {
 				"label":      "ID",
-				"cell_class": "Remote",
+				"cell_class": "Integer",
+				"remote":     true,
 				"cell_style": "col-pre"
 			},
 			"name": {
 				"label":      "Name",
-				"cell_class": "Remote",
+				"cell_class": "Text",
+				"remote":     true,
 				"cell_style": "col-25"
 			},
 			"username": {
 				"label":      "Username",
-				"cell_class": "Remote",
+				"cell_class": "Text",
+				"remote":     true,
 				"cell_style": "col-25"
 			},
 			"email": {
 				"label":      "E-Mail",
-				"cell_class": "Remote",
+				"cell_class": "Text",
+				"remote":     true,
 				"cell_style": "col-25"
 			},
 			"approver": {
@@ -99,9 +105,10 @@
 		},
 		"data": {
 			"title":      "Approve User Requests",
+			"schema":     "user_limbo",
 			"row_class":  "row",
 			"row_pkid":   "userid",
-			"address":    "\/cxa\/userinter.php",
+			"address":    "\/cxa\/tables\/tables.php",
 			"get_action": "getlimbousers",
 			"del_action": "dellimbouser",
 			"table_auth": 3

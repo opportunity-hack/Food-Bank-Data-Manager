@@ -7,12 +7,6 @@ You should have received a copy of this license with CXA Auth LW.
 If not, to view a copy of the license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/us/legalcode
 */
 
-
-//$.getJSON('/tables/tableconfig.json', function(data) {
-//    // load it???
-//});
-
-
 var elems = {
 	'table': '<table></table>',
 	'td':    '<td></td>',
@@ -263,6 +257,15 @@ function TableCell (row, column)
 	this.row = row; // instanceof TableRow
 	this.column = column;
 	this.create();
+	
+	if ('remote' in this.row.table.specification.columns[this.column])
+	{
+		this.remote = this.row.table.specification.columns[this.column];
+	}
+	else
+	{
+		this.remote = false;
+	}
 }
 
 TableCell.prototype.create = function ()
@@ -299,9 +302,14 @@ TableCell.prototype.get_data = function ()
 
 TableCell.prototype.open = function ()
 {
-	this.container.empty();
 	this.container.addClass(this.open_class);
-	this.container.append(this.open_input);
+	
+	if (!this.remote)
+	{
+		this.container.empty();
+		this.container.append(this.open_input);
+	}
+	
 	this.is_open = true;
 };
 
@@ -333,61 +341,18 @@ TableCell.prototype.validate = function ()
 TableCell.prototype.close = function ()
 {
 	this.container.removeClass(this.open_class);
-	this.open_input.detach();
-	this.container.text(this.open_input.val());
+	
+	if (!this.remote)
+	{
+		this.open_input.detach();
+		this.container.text(this.open_input.val());
+	}
+	
 	this.is_open = false;
 };
 
 
 var TableCellClasses = {};
-
-
-TableCellClasses.Remote = function () {TableCell.apply(this, arguments);};
-TableCellClasses.Remote.prototype = Object.create(TableCell.prototype);
-TableCellClasses.Remote.prototype.constructor = TableCell;
-
-TableCellClasses.Remote.prototype.create = function ()
-{
-	this.container = $(elems.td);
-	if ('cell_style' in this.row.table.specification.columns[this.column])
-	{
-		this.container.addClass(this.row.table.specification.columns[this.column].cell_style);
-	}
-	this.container.appendTo(this.row.row);
-	
-	this.is_open = false;
-	this.open_class = 'editable';
-	this.error_class = 'error';
-	this._data = null;
-};
-
-TableCellClasses.Remote.prototype.set_data = function (data)
-{
-	this._data = data;
-	this.container.text(data);
-};
-
-TableCellClasses.Remote.prototype.get_data = function ()
-{
-	return this._data;
-};
-
-TableCellClasses.Remote.prototype.open = function ()
-{
-	this.container.addClass(this.open_class);
-	this.is_open = true;
-};
-
-TableCellClasses.Remote.prototype.validate = function ()
-{
-	return true;
-};
-
-TableCellClasses.Remote.prototype.close = function ()
-{
-	this.container.removeClass(this.open_class);
-	this.is_open = false;
-};
 
 
 TableCellClasses.Number = function () {TableCell.apply(this, arguments);};
@@ -535,12 +500,14 @@ TableCellClasses.EditButton.prototype.dispatch_edit_click = function (event)
 }
 
 
-TableCellClasses.Approver = function () {TableCellClasses.Remote.apply(this, arguments);};
-TableCellClasses.Approver.prototype = Object.create(TableCellClasses.Remote.prototype);
-TableCellClasses.Approver.prototype.constructor = TableCellClasses.Remote;
+TableCellClasses.Approver = function () {TableCell.apply(this, arguments);};
+TableCellClasses.Approver.prototype = Object.create(TableCell.prototype);
+TableCellClasses.Approver.prototype.constructor = TableCell;
 
 TableCellClasses.Approver.prototype.create = function ()
 {
+	this.remote = true;
+	
 	this.container = $(elems.td);
 	if ('cell_style' in this.row.table.specification.columns[this.column])
 	{
@@ -668,17 +635,27 @@ TableCellClasses.Password.prototype.get_data = function ()
 
 TableCellClasses.Password.prototype.open = function ()
 {
-	this.reset_link.detach();
 	this.container.addClass(this.open_class);
-	this.container.append(this.open_input);
+	
+	if (!this.remote)
+	{
+		this.reset_link.detach();
+		this.container.append(this.open_input);
+	}
+	
 	this.is_open = true;
 };
 
 TableCellClasses.Password.prototype.close = function ()
 {
 	this.container.removeClass(this.open_class);
-	this.open_input.detach();
-	this.container.append(this.reset_link);
+	
+	if (!this.remote)
+	{
+		this.open_input.detach();
+		this.container.append(this.reset_link);
+	}
+	
 	this.is_open = false;
 };
 
@@ -787,7 +764,8 @@ Table.prototype.refresh = function ()
 		},
 		(function(table){return function (data)
 		{
-			if (!data)
+			console.log(data);
+			if (!Array.isArray(data))
 			{
 				table.server_error();
 			}
@@ -797,14 +775,23 @@ Table.prototype.refresh = function ()
 			}
 		}}(table)),
 		"json"
-	);
+	).fail((function(table){return function (data){
+			table.server_error(data.responseText);
+	}}(table)));
 };
 
 Table.prototype.server_error = function (data)
 {
 	if (data)
 	{
-		alert("Server error: "+data);
+		if (data.length < 100)
+		{
+			alert("Server error: "+data);
+		}
+		else
+		{
+			alert("Server error");
+		}
 	}
 	else
 	{
@@ -812,7 +799,7 @@ Table.prototype.server_error = function (data)
 	}
 	
 	console.error('Invalid response: ', data);
-	serverFail=true;
+	this.server_fail = true;
 };
 
 Table.prototype.populate = function (data)
