@@ -5,15 +5,18 @@ require_once('Table.php');
 interface Column
 {
 	public function __construct($name, array $config);
-	public function validate($value);
+	public function process($value);
 	public function get_name();
 	public function get_actions();
+	public function get_bind_type();
 }
 
-class BaseColumn implements Column
+abstract class BaseColumn implements Column
 {
-	private $name;
-	private $mandatory = true;
+	protected $name;
+	protected $bind_type = 's';
+	
+	public $mandatory = true;
 	
 	function __construct($name, array $config)
 	{
@@ -21,13 +24,13 @@ class BaseColumn implements Column
 		
 		if (isset($config['mandatory']))
 		{
-			$mandatory = (bool)($config['mandatory']);
+			$this->mandatory = (bool)($config['mandatory']);
 		}
 	}
 	
-	public function validate($value)
+	protected function validate($value)
 	{
-		if (!$mandatory || !empty($value))
+		if (!$this->mandatory || !empty($value))
 		{
 			return true;
 		}
@@ -36,6 +39,8 @@ class BaseColumn implements Column
 			return false;
 		}
 	}
+	
+	abstract public function process($value);
 	
 	public function get_name()
 	{
@@ -46,20 +51,27 @@ class BaseColumn implements Column
 	{
 		return array();
 	}
+	
+	public function get_bind_type()
+	{
+		return $this->bind_type;
+	}
 }
 
 class ClientColumn implements Column
 {
+	protected $bind_type = '';
+	
 	function __construct($name, array $config)
 	{
 		// Pass
 	}
 	
-	public function validate($value)
+	public function process($value)
 	{
-		// Data should never be present to be validated against.
+		// This column should never have any data.
 		
-		return false;
+		return null;
 	}
 	
 	public function get_name()
@@ -73,26 +85,99 @@ class ClientColumn implements Column
 	{
 		return array();
 	}
+	
+	public function get_bind_type()
+	{
+		return $this->bind_type;
+	}
 }
 
 class Number extends BaseColumn
 {
+	protected $bind_type = 'd';
 	
+	protected function validate($value)
+	{
+		if (parent::validate($value) && is_numeric($value))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	public function process($value)
+	{
+		if (!$this->validate($value))
+		{
+			http_response_code(400);
+			echo('invalid input for '.$this->name);
+			exit();
+		}
+		
+		return floatval($value);
+	}
 }
 
 class Integer extends BaseColumn
 {
+	protected $bind_type = 'i';
 	
+	protected function validate($value)
+	{
+		if (parent::validate($value) && ctype_digit($value))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	public function process($value)
+	{
+		if (!$this->validate($value))
+		{
+			http_response_code(400);
+			echo('invalid input for '.$this->name);
+			exit();
+		}
+		
+		return intval($value);
+	}
 }
 
 class Text extends BaseColumn
 {
-	
+	public function process($value)
+	{
+		if (!$this->validate($value))
+		{
+			http_response_code(400);
+			echo('invalid input for '.$this->name);
+			exit();
+		}
+		
+		return $value;
+	}
 }
 
-class Password extends BaseColumn
+class Password extends Text
 {
-	
+	public function process($value)
+	{
+		if (!$this->validate($value))
+		{
+			http_response_code(400);
+			echo('invalid input for '.$this->name);
+			exit();
+		}
+		
+		return password_hash($value, PASSWORD_BCRYPT);
+	}
 }
 
 class EditButton extends ClientColumn

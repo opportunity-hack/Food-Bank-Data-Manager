@@ -54,7 +54,6 @@ abstract class BaseAction implements Action
 	
 	function __construct(Table $table)
 	{
-		global $conn;
 		$this->table = $table;
 		$this->auth_level = $this->find_auth_level();
 	}
@@ -63,13 +62,21 @@ abstract class BaseAction implements Action
 	
 	public function run($data)
 	{
-		boot_user($this->auth_level);
-		error_log("Auth level: ".$this->auth_level);
+		if(!authorized($this->auth_level))
+		{
+			error_log('Failed access attempt at level '.$level.' by '.$_SESSION["userdata"]["username"].' with authorization level '.$_SESSION["userdata"]["authorization"].'!');
+			http_response_code(403);
+			echo('unauthorized');
+			exit();
+		}
 	}
 }
 
-abstract class DirectAction extends BaseAction
+class GetAction extends BaseAction
 {
+	use TableActionAuth;
+	
+	protected $auth_source = 'get_auth';
 	protected $query;
 	
 	function __construct(Table $table)
@@ -79,7 +86,26 @@ abstract class DirectAction extends BaseAction
 		$this->query = $this->build_query();
 	}
 	
-	abstract protected function build_query();
+	protected function build_query()
+	{
+		$columns = $this->table->get_columns();
+		$query = "SELECT ";
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null)
+			{
+				$query .= "`".$column_name."`, ";
+			}
+		}
+		
+		$query = rtrim($query, ", ");
+		$query .= " FROM `".$this->table->get_schema_name()."`;";
+		
+		return $query;
+	}
 	
 	protected function query()
 	{
@@ -97,41 +123,6 @@ abstract class DirectAction extends BaseAction
 		return $result;
 	}
 	
-	public function run($data)
-	{
-		parent::run($data);
-		
-		return $this->query();
-	}
-}
-
-class GetAction extends DirectAction
-{
-	use TableActionAuth;
-	
-	protected $auth_source = 'get_auth';
-	
-	protected function build_query()
-	{
-		$columns = $this->table->get_columns();
-		$query = "SELECT ";
-		
-		foreach ($columns as $column)
-		{
-			$db_col_name = $column->get_name();
-			
-			if ($db_col_name !== null)
-			{
-				$query .= "`".$db_col_name."`, ";
-			}
-		}
-		
-		$query = rtrim($query, ", ");
-		$query .= " FROM `".$this->table->get_schema_name()."`;";
-		
-		return $query;
-	}
-	
 	protected function output($result)
 	{
 		$results = array();
@@ -147,8 +138,9 @@ class GetAction extends DirectAction
 	
 	public function run($data)
 	{
-		$result = parent::run($data);
+		parent::run($data);
 		
+		$result =  $this->query();
 		$this->output($result);
 	}
 }
@@ -175,15 +167,159 @@ class GetUsers extends GetAction
 	}
 }
 
-class NewAction implements Action
+class SetAction extends BaseAction
 {
+	use TableActionAuth;
+	
+	protected $auth_source = 'set_auth';
+	protected $statement;
+	protected $bound_data = array();
+	
+	function __construct(Table $table)
+	{
+		parent::__construct($table);
+	}
+	
+	protected function pre_validate($data_columns)
+	{
+		$columns = $this->table->get_columns();
+		$final_columns = array();
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null)
+			{
+				if (isset($data_columns[$column_name]))
+				{
+					$final_columns[$column_name] = $column;
+				}
+				else if ($column->mandatory)
+				{
+					http_response_code(400);
+					echo('missing column '.$column_name);
+					exit();
+				}
+			}
+		}
+		
+		return $final_columns;
+	}
+	
+	protected function build_query($columns)
+	{
+		$query = "UPDATE `".$this->table->get_schema_name()."` SET ";
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null && $column_name != $this->table->get_primary_key())
+			{
+				$query .= "`".$column_name."`=?, ";
+			}
+		}
+		
+		$query = rtrim($query, ", ");
+		$query .= " WHERE `".$this->table->get_primary_key()."`=? LIMIT 1;";
+		
+		return $query;
+	}
+	
+	protected function setup_bindings($columns)
+	{
+		$bind_types = "";
+		$params = array("");
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null && $column_name != $this->table->get_primary_key())
+			{
+				$bind_types .= $column->get_bind_type();
+				
+				$this->bound_data[$column_name] = null;
+				$params[] = &$this->bound_data[$column_name];
+			}
+		}
+		
+		$bind_types .= $columns[$this->table->get_primary_key()]->get_bind_type();
+		$this->bound_data[$this->table->get_primary_key()] = null;
+		$params[] = &$this->bound_data[$this->table->get_primary_key()];
+		$params[0] = $bind_types;
+		
+		return call_user_func_array(array($this->statement, 'bind_param'), $params);
+	}
+	
+	protected function execute()
+	{
+		global $conn;
+		
+		if (!$this->statement->execute())
+		{
+			error_log('Error #'.$conn->errno.' while executing statement.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		$result = $this->statement->get_result();
+		if (!$result && $conn->errno)
+		{
+			error_log('Error #'.$conn->errno.' while retrieving statement result.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		return $result;
+	}
+	
 	public function run($data)
 	{
+		global $conn;
+		parent::run($data);
 		
+		$columns = $this->pre_validate($data);
+		$query = $this->build_query($columns);
+		$this->statement = $conn->prepare($query);
+		
+		if (!$this->statement)
+		{
+			error_log('Error #'.$conn->errno.' while preparing query '.$this->query);
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		if(!$this->setup_bindings($columns))
+		{
+			error_log('Error #'.$conn->errno.' while configuring statement bindings.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null)
+			{
+				$this->bound_data[$column_name] = $column->process($data[$column_name]);
+			}
+		}
+		
+		$this->execute();
+		
+		echo('ok');
+		exit();
 	}
 }
 
-class SetAction implements Action
+class NewAction implements Action
 {
 	public function run($data)
 	{

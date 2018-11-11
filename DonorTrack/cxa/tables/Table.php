@@ -8,6 +8,7 @@ class Table
 	private $columns = array();
 	private $actions = array();
 	private $schema_name;
+	private $primary_key;
 	
 	public $config;
 	
@@ -33,6 +34,19 @@ class Table
 			$this->columns[$column_name] = new $column_class($column_name, $column_config);
 		}
 		
+		if (!isset($this->config['data']['row_pkid'])
+			|| !isset($this->config['columns'][$this->config['data']['row_pkid']]))
+		{
+			error_log('Missing primary key in table for schema '.$this->schema_name);
+			http_response_code(500);
+			echo('configuration error');
+			exit();
+		}
+		else
+		{
+			$this->primary_key = $this->config['data']['row_pkid'];
+		}
+		
 		if (isset($this->config['data']['get_action']))
 		{
 			if (isset($this->config['data']['get_class']))
@@ -54,6 +68,28 @@ class Table
 				$this->actions[$this->config['data']['get_action']] = new GetAction($this);
 			}
 		}
+		
+		if (isset($this->config['data']['set_action']))
+		{
+			if (isset($this->config['data']['set_class']))
+			{
+				$set_class = __NAMESPACE__ . '\\' . $this->config['data']['set_class'];
+				
+				if (!class_exists($set_class))
+				{
+					error_log('Unknown action class '.$get_class.' in table for schema '.$this->schema_name);
+					http_response_code(500);
+					echo('configuration error');
+					exit();
+				}
+				
+				$this->actions[$this->config['data']['set_action']] = new $set_class($this);
+			}
+			else
+			{
+				$this->actions[$this->config['data']['set_action']] = new SetAction($this);
+			}
+		}
 	}
 	
 	public function get_columns()
@@ -69,6 +105,11 @@ class Table
 	public function get_schema_name()
 	{
 		return $this->schema_name;
+	}
+	
+	public function get_primary_key()
+	{
+		return $this->primary_key;
 	}
 }
 ?>
