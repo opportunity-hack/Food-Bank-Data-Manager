@@ -175,11 +175,6 @@ class SetAction extends BaseAction
 	protected $statement;
 	protected $bound_data = array();
 	
-	function __construct(Table $table)
-	{
-		parent::__construct($table);
-	}
-	
 	protected function pre_validate($data_columns)
 	{
 		$columns = $this->table->get_columns();
@@ -264,17 +259,6 @@ class SetAction extends BaseAction
 			echo('database error');
 			exit();
 		}
-		
-		$result = $this->statement->get_result();
-		if (!$result && $conn->errno)
-		{
-			error_log('Error #'.$conn->errno.' while retrieving statement result.');
-			http_response_code(500);
-			echo('database error');
-			exit();
-		}
-		
-		return $result;
 	}
 	
 	public function run($data)
@@ -327,11 +311,78 @@ class NewAction implements Action
 	}
 }
 
-class DelAction implements Action
+class DelAction extends BaseAction
 {
+	use TableActionAuth;
+	
+	protected $auth_source = 'del_auth';
+	protected $statement;
+	protected $bound_key = null;
+	
+	protected function build_query()
+	{
+		$query = "DELETE FROM `".$this->table->get_schema_name()."` ";
+		$query .= " WHERE `".$this->table->get_primary_key()."`=? LIMIT 1;";
+		
+		return $query;
+	}
+	
+	protected function setup_bindings()
+	{
+		$columns = $this->table->get_columns();
+		$bind_type = $columns[$this->table->get_primary_key()]->get_bind_type();
+		return $this->statement->bind_param($bind_type, $this->bound_key);
+	}
+	
+	protected function execute()
+	{
+		global $conn;
+		
+		if (!$this->statement->execute())
+		{
+			error_log('Error #'.$conn->errno.' while executing statement.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+	}
+	
 	public function run($data)
 	{
+		global $conn;
+		parent::run($data);
 		
+		if (!isset($data[$this->table->get_primary_key()]))
+		{
+			http_response_code(400);
+			echo('missing column '.$column_name);
+			exit();
+		}
+		
+		$query = $this->build_query();
+		$this->statement = $conn->prepare($query);
+		
+		if (!$this->statement)
+		{
+			error_log('Error #'.$conn->errno.' while preparing query '.$this->query);
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		if(!$this->setup_bindings())
+		{
+			error_log('Error #'.$conn->errno.' while configuring statement bindings.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+		
+		$this->bound_key = $data[$this->table->get_primary_key()];
+		$this->execute();
+		
+		echo('ok');
+		exit();
 	}
 }
 

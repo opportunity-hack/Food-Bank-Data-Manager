@@ -77,7 +77,7 @@ class Table
 				
 				if (!class_exists($set_class))
 				{
-					error_log('Unknown action class '.$get_class.' in table for schema '.$this->schema_name);
+					error_log('Unknown action class '.$set_class.' in table for schema '.$this->schema_name);
 					http_response_code(500);
 					echo('configuration error');
 					exit();
@@ -88,6 +88,28 @@ class Table
 			else
 			{
 				$this->actions[$this->config['data']['set_action']] = new SetAction($this);
+			}
+		}
+		
+		if (isset($this->config['data']['del_action']))
+		{
+			if (isset($this->config['data']['del_class']))
+			{
+				$del_class = __NAMESPACE__ . '\\' . $this->config['data']['del_class'];
+				
+				if (!class_exists($del_class))
+				{
+					error_log('Unknown action class '.$del_class.' in table for schema '.$this->schema_name);
+					http_response_code(500);
+					echo('configuration error');
+					exit();
+				}
+				
+				$this->actions[$this->config['data']['del_action']] = new $del_class($this);
+			}
+			else
+			{
+				$this->actions[$this->config['data']['del_action']] = new DelAction($this);
 			}
 		}
 	}
