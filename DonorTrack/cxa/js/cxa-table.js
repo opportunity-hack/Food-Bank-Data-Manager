@@ -127,9 +127,9 @@ TableRow.prototype.close = function ()
 			},
 			(function(row){return function (resp)
 			{
-				if (resp != "ok")
+				if (resp != 'ok')
 				{
-					console.error("Server error when updating row ("+row.primary_key+") : " + resp);
+					console.error('Server error when updating row ('+row.primary_key+'): ' + resp);
 					row.table.refresh();
 				}
 				else
@@ -159,9 +159,9 @@ TableRow.prototype.del = function ()
 		},
 		(function(row){return function (resp)
 		{
-			if (resp != "ok")
+			if (resp != 'ok')
 			{
-				console.error("Server error when deleting row ("+row.primary_key+") : " + resp);
+				console.error('Server error when deleting row ('+row.primary_key+') :' + resp);
 				row.table.refresh();
 			}
 			else
@@ -460,11 +460,18 @@ TableCellClasses.EditButton.prototype.create = function ()
 	this.button_delete.appendTo(this.container);
 	this.button_delete.hide()
 	/*
-	this.button_delete.attr('tip', 'REMOVE USER').mousemove(function(){
-		ttc.show().css("left",event.pageX-127).css("top",event.pageY).text($(this).attr("tip"));
-	}).mouseout(function(event){
-		ttc.hide();
-	});
+	this.button_delete.attr('tip', 'REMOVE USER');
+	this.button_delete.mousemove(function (event)
+		{
+			ttc.show();
+			ttc.css('left', event.pageX-127);
+			ttc.css('top',  event.pageY);
+			ttc.text($(this).attr('tip'));
+		});
+	this.button_delete.mouseout(function (event)
+		{
+			ttc.hide();
+		});
 	*/
 };
 
@@ -575,9 +582,9 @@ TableCellClasses.Approver.prototype.approve = function()
 			},
 			(function(cell){return function (resp)
 			{
-				if (resp != "ok")
+				if (resp != 'ok')
 				{
-					console.error("Server error when approving row ("+cell.row.primary_key+") : " + resp);
+					console.error('Server error when approving row ('+cell.row.primary_key+') :' + resp);
 					cell.row.table.refresh();
 				}
 				else
@@ -611,7 +618,8 @@ TableCellClasses.Password.prototype.create = function ()
 	this.open_input.addClass('tinput');
 	
 	this.reset_link = $(elems.a);
-	this.reset_link.text("get reset link");
+	this.reset_link.text('get reset link');
+	this.reset_link.css('cursor', 'pointer');
 	this.reset_link.click({cell: this}, function(event){event.data.cell.get_reset_link()});
 	this.reset_link.appendTo(this.container);
 };
@@ -623,7 +631,7 @@ TableCellClasses.Password.prototype.set_data = function (data)
 
 TableCellClasses.Password.prototype.get_data = function ()
 {
-	if (this.open_input.val() == "")
+	if (this.open_input.val() == '')
 	{
 		return null;
 	}
@@ -695,17 +703,17 @@ TableCellClasses.Password.prototype.get_reset_link = function ()
 		},
 		(function(cell){return function(resp)
 		{
-			if (typeof resp === "string" && resp.includes("http"))
+			if (typeof resp === 'string' && resp.includes('http'))
 			{
 				resp = resp.substring(0, resp.length-2);
 				window.open(resp, '_blank').focus();
 			}
 			else
 			{
-				console.error("Error while getting reset link for password on row ("+cell.row.primary_key+"): "+resp);
+				console.error('Error while getting reset link for password on row ('+cell.row.primary_key+'): '+resp);
 			}
 		}}(this)),
-		"text"
+		'text'
 	);
 }
 
@@ -760,7 +768,7 @@ Table.prototype.refresh = function ()
 		this.specification.data.address,
 		{
 			action: this.specification.data.get_action,
-			data: (this.specification.data.get_parameters || "")
+			data: (this.specification.data.get_parameters || '')
 		},
 		(function(table){return function (data)
 		{
@@ -774,7 +782,7 @@ Table.prototype.refresh = function ()
 				table.populate(data);
 			}
 		}}(table)),
-		"json"
+		'json'
 	).fail((function(table){return function (data){
 			table.server_error(data.responseText);
 	}}(table)));
@@ -786,16 +794,16 @@ Table.prototype.server_error = function (data)
 	{
 		if (data.length < 100)
 		{
-			alert("Server error: "+data);
+			alert('Server error: '+data);
 		}
 		else
 		{
-			alert("Server error");
+			alert('Server error');
 		}
 	}
 	else
 	{
-		alert("Could not contact server");
+		alert('Could not contact server');
 	}
 	
 	console.error('Invalid response: ', data);
