@@ -319,6 +319,16 @@ class DelAction extends BaseAction
 	protected $statement;
 	protected $bound_key = null;
 	
+	protected function pre_validate($data)
+	{
+		if (!isset($data[$this->table->get_primary_key()]))
+		{
+			http_response_code(400);
+			echo('missing column '.$this->table->get_primary_key());
+			exit();
+		}
+	}
+	
 	protected function build_query()
 	{
 		$query = "DELETE FROM `".$this->table->get_schema_name()."` ";
@@ -338,33 +348,12 @@ class DelAction extends BaseAction
 	{
 		global $conn;
 		
-		if (!$this->statement->execute())
-		{
-			error_log('Error #'.$conn->errno.' while executing statement.');
-			http_response_code(500);
-			echo('database error');
-			exit();
-		}
-	}
-	
-	public function run($data)
-	{
-		global $conn;
-		parent::run($data);
-		
-		if (!isset($data[$this->table->get_primary_key()]))
-		{
-			http_response_code(400);
-			echo('missing column '.$column_name);
-			exit();
-		}
-		
 		$query = $this->build_query();
 		$this->statement = $conn->prepare($query);
 		
 		if (!$this->statement)
 		{
-			error_log('Error #'.$conn->errno.' while preparing query '.$this->query);
+			error_log('Error #'.$conn->errno.' while preparing query '.$query);
 			http_response_code(500);
 			echo('database error');
 			exit();
@@ -378,7 +367,24 @@ class DelAction extends BaseAction
 			exit();
 		}
 		
-		$this->bound_key = $data[$this->table->get_primary_key()];
+		if (!$this->statement->execute())
+		{
+			error_log('Error #'.$conn->errno.' while executing statement.');
+			http_response_code(500);
+			echo('database error');
+			exit();
+		}
+	}
+	
+	public function run($data)
+	{
+		parent::run($data);
+		
+		$this->pre_validate($data);
+		
+		$pk_column = $this->table->get_columns()[$this->table->get_primary_key()];
+		$this->bound_key = $pk_column->process($data[$this->table->get_primary_key()]);
+		
 		$this->execute();
 		
 		echo('ok');
@@ -386,11 +392,74 @@ class DelAction extends BaseAction
 	}
 }
 
-class ApproveUserAction implements Action
+class ApproveUserAction extends DelAction
 {
+	use ColumnActionAuth;
+	
+	protected $auth_source = 'approve_auth';
+	protected $column_name;
+	protected $bound_auth;
+	
+	public function __construct(Table $table, $column_name)
+	{
+		parent::__construct($table);
+		
+		$this->column_name = $column_name;
+	}
+	
+	protected function pre_validate($data)
+	{
+		foreach (array($this->column_name, $this->table->get_primary_key()) as $key)
+		{
+			if (!isset($data[$key]))
+			{
+				http_response_code(400);
+				echo('missing column '.$key);
+				exit();
+			}
+		}
+		
+		if (!authorized($data[$this->column_name]))
+		{
+			http_response_code(403);
+			echo('cannot assign higher authorization than current user');
+			exit();
+		}
+	}
+	
+	protected function build_query()
+	{
+		$query  = "INSERT INTO `users` (`username`, `password`, `name`, `email`, `authorization`) ";
+		$query .= "SELECT `username`, `password`, `name`, `email`, ? FROM `user_limbo` WHERE `userid` = ?;";
+		error_log($query);
+		return $query;
+	}
+	
+	protected function setup_bindings()
+	{
+		$columns = $this->table->get_columns();
+		$bind_types  = $columns[$this->column_name]->get_bind_type();
+		$bind_types .= $columns[$this->table->get_primary_key()]->get_bind_type();
+		
+		return $this->statement->bind_param($bind_types, $this->bound_auth, $this->bound_key);
+	}
+	
 	public function run($data)
 	{
+		BaseAction::run($data);
 		
+		$this->pre_validate($data);
+		
+		$columns = $this->table->get_columns();
+		$this->bound_auth = $columns[$this->column_name]->process($data[$this->column_name]);
+		$this->bound_key = $columns[$this->table->get_primary_key()]->process($data[$this->table->get_primary_key()]);
+		error_log($this->bound_auth);
+		error_log($this->bound_key);
+		
+		$this->execute();
+		
+		$associated_action = new DelAction($this->table);
+		$associated_action->run($data);
 	}
 }
 

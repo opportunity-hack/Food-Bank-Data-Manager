@@ -565,7 +565,7 @@ TableCellClasses.Approver.prototype.approve = function()
 	{
 		data = {};
 		data[this.row.table.specification.data.row_pkid] = this.row.primary_key;
-		data[this.row.table.specification.columns[this.column].parameter] = this.get_data();
+		data[this.column] = this.get_data();
 		
 		$.post(
 			this.row.table.specification.data.address,

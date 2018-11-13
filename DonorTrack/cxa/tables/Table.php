@@ -31,7 +31,20 @@ class Table
 				exit();
 			}
 			
-			$this->columns[$column_name] = new $column_class($column_name, $column_config);
+			$this->columns[$column_name] = new $column_class($column_name, $this);
+			
+			$column_actions = $this->columns[$column_name]->get_actions();
+			if (!empty(array_intersect_assoc($this->actions, $column_actions)))
+			{
+				// Same action name defined twice, quit
+				
+				error_log('Duplicate action name in table for schema '.$this->schema_name);
+				http_response_code(500);
+				echo('configuration error');
+				exit();
+				
+			}
+			$this->actions = array_merge($this->actions, $column_actions);
 		}
 		
 		if (!isset($this->config['data']['row_pkid'])

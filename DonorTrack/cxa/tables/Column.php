@@ -4,7 +4,7 @@ require_once('Table.php');
 
 interface Column
 {
-	public function __construct($name, array $config);
+	public function __construct($name, Table $table);
 	public function process($value);
 	public function get_name();
 	public function get_actions();
@@ -15,16 +15,18 @@ abstract class BaseColumn implements Column
 {
 	protected $name;
 	protected $bind_type = 's';
+	protected $table;
 	
 	public $mandatory = true;
 	
-	function __construct($name, array $config)
+	function __construct($name, Table $table)
 	{
 		$this->name = $name;
+		$this->table = $table;
 		
-		if (isset($config['mandatory']))
+		if (isset($this->table->config['columns'][$this->name]['mandatory']))
 		{
-			$this->mandatory = (bool)($config['mandatory']);
+			$this->mandatory = (bool)($this->table->config['columns'][$this->name]['mandatory']);
 		}
 	}
 	
@@ -60,11 +62,14 @@ abstract class BaseColumn implements Column
 
 class ClientColumn implements Column
 {
+	protected $name;
 	protected $bind_type = '';
+	protected $table;
 	
-	function __construct($name, array $config)
+	function __construct($name, Table $table)
 	{
-		// Pass
+		$this->name = $name;
+		$this->table = $table;
 	}
 	
 	public function process($value)
@@ -185,9 +190,44 @@ class EditButton extends ClientColumn
 	
 }
 
-class Approver extends ClientColumn
+class Approver extends Integer
 {
+	public function get_name()
+	{
+		// Null name will indicate no associated DB column.
+		
+		return null;
+	}
 	
+	public function get_actions()
+	{
+		$config = $this->table->config['columns'][$this->name];
+		$actions = array();
+		
+		if (isset($config['action']))
+		{
+			if (isset($config['action_class']))
+			{
+				$action_class = __NAMESPACE__ . '\\' . $config['action_class'];
+				
+				if (!class_exists($action_class))
+				{
+					error_log('Unknown action class '.$action_class.' in column '.$this->name);
+					http_response_code(500);
+					echo('configuration error');
+					exit();
+				}
+				
+				$actions[$config['action']] = new $action_class($this->table, $this->name);
+			}
+			else
+			{
+				$actions[$config['action']] = new ApproveUserAction($this->table, $this->name);
+			}
+		}
+		
+		return $actions;
+	}
 }
 
 ?>

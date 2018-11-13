@@ -99,8 +99,7 @@
 				"label":      "",
 				"cell_class": "Approver",
 				"cell_style": "col-post",
-				"action":     "approveuser",
-				"parameter":  "authlevel"
+				"action":     "approveuser"
 			}
 		},
 		"data": {
