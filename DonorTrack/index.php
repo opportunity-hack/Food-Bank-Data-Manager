@@ -82,10 +82,10 @@ if(isset($_SESSION["userdata"])){
 					Administration
 				</div>
 				<div class="drawer" id="d-admin">
-					<a class="action stored" href="./cxa/approveusers.php">
+					<a class="action stored" href="./cxa/table/approveusers">
 						Approve User Requests
 					</a>
-					<a class="action stored" href="./cxa/users.php">
+					<a class="action stored" href="./cxa/table/users">
 						Manage Users
 					</a>
 					<a class="action stored" href="./cxa/register.php">
@@ -99,7 +99,7 @@ if(isset($_SESSION["userdata"])){
 					Administration
 				</div>
 				<div class="drawer" id="d-admin">
-					<a class="action stored" href="./cxa/approveusers.php">
+					<a class="action stored" href="./cxa/table/approveusers">
 						Approve User Requests
 					</a>
 					<a class="action stored" href="./cxa/register.php">

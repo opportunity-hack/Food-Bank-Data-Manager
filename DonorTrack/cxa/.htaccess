@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule ^table\/(.+)/?$ tables/tables.php?$1 [L]
