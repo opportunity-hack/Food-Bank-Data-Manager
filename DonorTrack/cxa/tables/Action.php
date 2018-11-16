@@ -396,7 +396,7 @@ class ApproveUserAction extends DelAction
 {
 	use ColumnActionAuth;
 	
-	protected $auth_source = 'approve_auth';
+	protected $auth_source = 'action_auth';
 	protected $column_name;
 	protected $bound_auth;
 	
@@ -431,7 +431,6 @@ class ApproveUserAction extends DelAction
 	{
 		$query  = "INSERT INTO `users` (`username`, `password`, `name`, `email`, `authorization`) ";
 		$query .= "SELECT `username`, `password`, `name`, `email`, ? FROM `user_limbo` WHERE `userid` = ?;";
-		error_log($query);
 		return $query;
 	}
 	
@@ -453,8 +452,6 @@ class ApproveUserAction extends DelAction
 		$columns = $this->table->get_columns();
 		$this->bound_auth = $columns[$this->column_name]->process($data[$this->column_name]);
 		$this->bound_key = $columns[$this->table->get_primary_key()]->process($data[$this->table->get_primary_key()]);
-		error_log($this->bound_auth);
-		error_log($this->bound_key);
 		
 		$this->execute();
 		
@@ -463,11 +460,101 @@ class ApproveUserAction extends DelAction
 	}
 }
 
-class ResetPasswordAction implements Action
+class ResetPasswordAction extends DelAction
 {
+	use ColumnActionAuth;
+	
+	protected $auth_source = 'action_auth';
+	protected $column_name;
+	protected $bound_token;
+	protected $bound_expires;
+	
+	public function __construct(Table $table, $column_name)
+	{
+		parent::__construct($table);
+		
+		$this->column_name = $column_name;
+	}
+	
+	protected function pre_validate($data)
+	{
+		if (!isset($data[$this->table->get_primary_key()]))
+		{
+			http_response_code(400);
+			echo('missing column '.$key);
+			exit();
+		}
+	}
+	
+	protected function build_query()
+	{
+		$query = "REPLACE INTO `password_reset` (`userid`, `token`, `expires`) VALUES (?, ?, ?);";
+		
+		return $query;
+	}
+	
+	protected function setup_bindings()
+	{
+		$columns = $this->table->get_columns();
+		$bind_types  = $columns[$this->table->get_primary_key()]->get_bind_type();
+		$bind_types .= "si";
+		
+		return $this->statement->bind_param($bind_types, $this->bound_key, $this->bound_token, $this->bound_expires);
+	}
+	
+	protected function generate_reset_link($authenticator, $userid)
+	{
+		global $conn, $send_email, $thedomain, $app_name;
+		
+		$resetLink=(!empty($_SERVER['HTTPS']) ? 'https' : 'http')."://".$_SERVER["HTTP_HOST"]."/cxa/reset.php?token=".strtr(base64_encode($authenticator), '+/=', '-_,');
+		
+		if ($send_email)
+		{
+			$userid = $conn->escape_string($userid);
+			$result = $conn->query("SELECT * FROM users WHERE userid=$userid");
+			
+			if ($result && $result->num_rows==1)
+			{
+				$row=$result->fetch_assoc();
+				if (preg_match("/.+@.+/", $row["email"]))
+				{
+					mail(strip_tags($row["email"]), "$app_name Password Reset",'
+					<html><body>
+						<h2>'.$app_name.' - Password Reset Link</h2>
+						<p>Hi '.explode(' ',trim(strip_tags($_SESSION['userdata']['name'])))[0].',<br/>
+						You can reset your password at the following link:<br/>
+						<a href="'.$resetLink.'">'.$resetLink.'</a><br/>
+						If you have forgotten your username or encounter any problems when resetting your password, please contact your administrator.</p>
+						<p>Please do not reply to this email. Your response will not be received.</p>
+					</body></html>
+					',"From: accounts@".$thedomain."\r\n".
+					"Reply-To: noreply@".$thedomain."\r\n".
+					"MIME-Version: 1.0\r\n".
+					"Content-Type: text/html; charset=ISO-8859-1\r\n");
+				}
+			}
+		}
+		
+		return $resetLink;
+	}
+	
 	public function run($data)
 	{
+		BaseAction::run($data);
 		
+		$this->pre_validate($data);
+		
+		$columns = $this->table->get_columns();
+		$this->bound_key = $columns[$this->table->get_primary_key()]->process($data[$this->table->get_primary_key()]);
+		
+		$authenticator = openssl_random_pseudo_bytes(33);
+		$this->bound_token = hash('sha256', $authenticator);
+		$this->bound_expires = time() + 86400;
+		
+		$this->execute();
+		
+		echo($this->generate_reset_link($authenticator, $this->bound_key));
+		exit();
 	}
 }
 

@@ -695,17 +695,19 @@ TableCellClasses.Password.prototype.validate = function ()
 
 TableCellClasses.Password.prototype.get_reset_link = function ()
 {
+	data = {};
+	data[this.row.table.specification.data.row_pkid] = this.row.primary_key;
+	
 	$.post(
 		this.row.table.specification.data.address,
 		{
-			'action': this.row.table.specification.columns[this.column].reset_action,
-			'data':   this.row.primary_key
+			'action': this.row.table.specification.columns[this.column].action,
+			'data':   data
 		},
 		(function(cell){return function(resp)
 		{
 			if (typeof resp === 'string' && resp.includes('http'))
 			{
-				resp = resp.substring(0, resp.length-2);
 				window.open(resp, '_blank').focus();
 			}
 			else

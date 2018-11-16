@@ -27,12 +27,12 @@
 				"mandatory":  true
 			},
 			"password": {
-				"label":        "New Password",
-				"cell_class":   "Password",
-				"cell_style":   "col-18",
-				"reset_action": "resetuserpassword",
-				"reset_auth":   4,
-				"mandatory":    false
+				"label":       "New Password",
+				"cell_class":  "Password",
+				"cell_style":  "col-18",
+				"action":      "resetuserpassword",
+				"action_auth": 4,
+				"mandatory":   false
 			},
 			"otpsecret": {
 				"label":      "TOTP Secret",

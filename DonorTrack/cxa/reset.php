@@ -2,46 +2,73 @@
 include('php/guestsession.php');
 include('meta.php');
 
-function delete_by_id($id){
+function delete_by_id($id)
+{
 	global $conn;
-	if($conn->query("DELETE FROM password_reset WHERE userid=".$id." LIMIT 1")){
+	
+	if ($conn->query("DELETE FROM password_reset WHERE userid=".$conn->escape_string($id)." LIMIT 1;"))
+	{
 		return true;
-	}else{
+	}
+	else
+	{
 		error_log($conn->error);
 		return false;
 	}
 }
 
-function verify_request(){
-	if(tryField("token")){
-		if(isset($_GET["token"])){
-			$token=strtr($_GET["token"], '-_,', '+/=');
-			$_GET["token"]=$token;
-		}else{
-			$token=$_POST["token"];
+function verify_request()
+{
+	global $conn;
+	
+	if (tryField("token"))
+	{
+		if (isset($_GET["token"]))
+		{
+			$token = strtr($_GET["token"], '-_,', '+/=');
+			$_GET["token"] = $token;
 		}
-		global $conn;
-		$result=$conn->query("SELECT userid, expires FROM password_reset WHERE token=\"".hash('sha256', base64_decode($token))."\" LIMIT 1");
-		if($result && $result->num_rows==1){
+		else
+		{
+			$token = $_POST["token"];
+		}
+		
+		$query = "SELECT `userid`, `expires` FROM `password_reset` WHERE `token`=\"".hash('sha256', base64_decode($token))."\" LIMIT 1;";
+		$result = $conn->query($query);
+		
+		if ($result && $result->num_rows == 1)
+		{
 			$result = $result->fetch_assoc();
-			if($result["expires"]>time()){
+			
+			if ($result["expires"]>time())
+			{
 				return $result["userid"];
-			}else{
+			}
+			else
+			{
 				delete_by_id($result["userid"]);
-				$regerr="This link has expired. Please contact your administrator to reset your password.";
-				$regtitle="Error";
+				$regerr = "This link has expired. Please contact your administrator to reset your password.";
+				$regtitle = "Error";
+				
 				include("php/reg-ok.php");
 				return false;
 			}
-		}else{
-			$regerr="Invalid token. Please contact your administrator to reset your password.";
-			$regtitle="Error";
+		}
+		else
+		{
+			$regerr = "Invalid token. Please contact your administrator to reset your password.";
+			$regtitle = "Error";
+			
 			include("php/reg-ok.php");
 			return false;
 		}
-	}elseif(!empty($_SESSION["userid"])){
+	}
+	elseif (!empty($_SESSION["userid"]))
+	{
 		return $_SESSION["userid"];
-	}else{
+	}
+	else
+	{
 		return false;
 	}
 }

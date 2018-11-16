@@ -183,6 +183,36 @@ class Password extends Text
 		
 		return password_hash($value, PASSWORD_BCRYPT);
 	}
+	
+	public function get_actions()
+	{
+		$config = $this->table->config['columns'][$this->name];
+		$actions = array();
+		
+		if (isset($config['action']))
+		{
+			if (isset($config['action_class']))
+			{
+				$action_class = __NAMESPACE__ . '\\' . $config['action_class'];
+				
+				if (!class_exists($action_class))
+				{
+					error_log('Unknown action class '.$action_class.' in column '.$this->name);
+					http_response_code(500);
+					echo('configuration error');
+					exit();
+				}
+				
+				$actions[$config['action']] = new $action_class($this->table, $this->name);
+			}
+			else
+			{
+				$actions[$config['action']] = new ResetPasswordAction($this->table, $this->name);
+			}
+		}
+		
+		return $actions;
+	}
 }
 
 class EditButton extends ClientColumn
