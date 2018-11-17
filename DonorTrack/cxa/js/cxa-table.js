@@ -675,6 +675,7 @@ TableCellClasses.Password.prototype.close = function ()
 	
 	if (!this.remote)
 	{
+		this.open_input.val("");
 		this.open_input.detach();
 		this.container.append(this.reset_link);
 	}
@@ -682,31 +683,9 @@ TableCellClasses.Password.prototype.close = function ()
 	this.is_open = false;
 };
 
-TableCellClasses.Password.prototype.validate = function ()
+TableCellClasses.Password.prototype.validate_data = function (data)
 {
-	if (this.is_open)
-	{
-		if (('mandatory' in this.row.table.specification.columns[this.column]
-			&& this.row.table.specification.columns[this.column].mandatory == false
-			&& this.open_input.val())
-			|| this.row.primary_key == null
-			|| this.validate_data(this.open_input.val()))
-		{
-				
-			this.container.removeClass(this.error_class);
-			return true;
-		}
-		else
-		{
-			this.container.addClass(this.error_class);
-			return false;
-		}
-	}
-	else
-	{
-		// Validating while not open is an unsupported scenario.
-		return null;
-	}
+	return this.row.primary_key == null || (data ? true : false);
 };
 
 TableCellClasses.Password.prototype.get_reset_link = function ()
