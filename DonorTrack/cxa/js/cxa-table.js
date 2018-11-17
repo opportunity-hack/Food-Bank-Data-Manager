@@ -240,8 +240,7 @@ function TableHeaderRow (table)
 		
 		if ('label_tip' in column)
 		{
-			this.header_data_columns[col_id].addClass('hastip');
-			this.header_data_columns[col_id].attr('tip', column.label_tip);
+			cxaui_add_tip(this.header_data_columns[col_id], column.label_tip);
 		}
 		
 		this.header_row.append(this.header_data_columns[col_id]);
@@ -466,20 +465,8 @@ TableCellClasses.EditButton.prototype.create = function ()
 	this.button_delete.click({row:this.row}, function(event){event.data.row.del();});
 	this.button_delete.appendTo(this.container);
 	this.button_delete.hide()
-	/*
-	this.button_delete.attr('tip', 'REMOVE USER');
-	this.button_delete.mousemove(function (event)
-		{
-			ttc.show();
-			ttc.css('left', event.pageX-127);
-			ttc.css('top',  event.pageY);
-			ttc.text($(this).attr('tip'));
-		});
-	this.button_delete.mouseout(function (event)
-		{
-			ttc.hide();
-		});
-	*/
+	
+	cxaui_add_tip(this.button_delete, 'DELETE RECORD');
 };
 
 TableCellClasses.EditButton.prototype.set_data = function (data)

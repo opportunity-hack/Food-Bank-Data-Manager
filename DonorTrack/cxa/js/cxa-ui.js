@@ -13,24 +13,55 @@ $(document).ready(CXAUI);
 var lastDrawer=false;
 
 function CXAUI(){
-	window.setTimeout(function(){$("#welcomebar").slideUp(300);},3000);
-	$(".drawer-handle").each(function(){
-		$(this).click(function(){
-			var sel="#d"+this.id.substring(2);
-			if(lastDrawer!=sel){
-				$(lastDrawer).slideUp();
-				lastDrawer=sel;
-			}
-			$(sel).slideToggle();
+	window.setTimeout(function ()
+		{
+			$("#welcomebar").slideUp(300);
+		}
+		,3000);
+	
+	$(".drawer-handle").each(function ()
+		{
+			$(this).click(function ()
+				{
+					var sel= "#d" + this.id.substring(2);
+					
+					if (lastDrawer != sel)
+					{
+						$(lastDrawer).slideUp();
+						lastDrawer=sel;
+					}
+					
+					$(sel).slideToggle();
+				});
 		});
-	});
-	ttc=$('<div></div>').addClass('ttc').appendTo($("body"));
-	$(".hastip").each(function(){
-		$(this).mousemove(function(){
-			ttc.show().css("left",event.pageX+10).css("top",event.pageY).text($(this).attr("tip"));
+	
+	window.cxaui_ttc = $('<div></div>');
+	window.cxaui_ttc.addClass('ttc');
+	window.cxaui_ttc.appendTo($("body"));
+	
+	$(".hastip").each(function ()
+		{
+			cxaui_add_tip($(this));
 		});
-		$(this).mouseout(function(event){
-			ttc.hide();
+}
+
+function cxaui_add_tip(jq, tip)
+{
+	if (tip !== undefined)
+	{
+		jq.attr('tip', tip);
+	}
+	
+	jq.mousemove(function (event)
+		{
+			window.cxaui_ttc.show();
+			window.cxaui_ttc.css('left', event.pageX + 10);
+			window.cxaui_ttc.css('top', event.pageY);
+			window.cxaui_ttc.text($(this).attr('tip'));
 		});
-	});
+	
+	jq.mouseout(function (event)
+		{
+			window.cxaui_ttc.hide();
+		});
 }

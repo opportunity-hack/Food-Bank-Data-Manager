@@ -28,7 +28,6 @@ If not, to view a copy of the license, visit https://creativecommons.org/license
 				$('#refresher').click(function(){table.refresh();});
 			}
 		);
-		$(document).ready(CXAUI);
 		</script>
 	</head>
 	<body>
