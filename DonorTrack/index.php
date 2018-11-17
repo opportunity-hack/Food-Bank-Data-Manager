@@ -73,6 +73,9 @@ if(isset($_SESSION["userdata"])){
 					<a class="action stored" href="./reporttasks.php">
 						Report Administration
 					</a>
+					<a class="action stored" href="./cxa/table/reportemails">
+						Manage Recipients
+					</a>
 				</div>
 				<?php
 				}

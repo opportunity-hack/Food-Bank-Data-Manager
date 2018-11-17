@@ -21,6 +21,6 @@ include("secret-config.php");
 $send_email = env("APP_EMAIL", false); //Whether to send emails relating to account info
 $app_name = "DonorTrack"; //Name of the app you are building, currently used only in emails
 $pypath = env("APP_PYTHON", "python"); //The path to Python 2.7, or just "python" if applicable
-$appdb_version = 2.01; //Target database schema version
+$appdb_version = 2.02; //Target database schema version
 $app_version = "2.0.5"; //Application version
 ?>

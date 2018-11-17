@@ -112,5 +112,38 @@
 			"del_action": "dellimbouser",
 			"table_auth": 3
 		}
+	},
+	"reportemails": {
+		"columns": {
+			"id": {
+				"label":      "",
+				"cell_class": "Integer",
+				"remote":     true,
+				"cell_style": "col-hidden"
+			},
+			"email": {
+				"label":      "E-Mail",
+				"cell_class": "Text",
+				"cell_style": "col-100",
+				"mandatory":  true
+			},
+			"editrow": {
+				"label":      "",
+				"cell_class": "EditButton",
+				"cell_style": "col-post"
+			}
+		},
+		"data": {
+			"title":      "Montly Report Mailing List",
+			"schema":     "report_emails",
+			"row_class":  "row",
+			"row_pkid":   "id",
+			"address":    "\/cxa\/tables\/tables.php",
+			"get_action": "getreportemails",
+			"set_action": "setreportemails",
+			"new_action": "newreportemails",
+			"del_action": "delreportemails",
+			"table_auth": 3
+		}
 	}
 }

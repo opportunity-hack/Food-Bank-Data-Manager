@@ -33,8 +33,13 @@ $patches = Array(
 		"file" => "/sql/patch_2.0_2.01.sql"
 	),
 	Array(
+		"from" => 2.01,
+		"to" => 2.02,
+		"file" => "/sql/patch_2.01_2.02.sql"
+	),
+	Array(
 		"from" => 0,
-		"to" => 2.01,
+		"to" => 2.02,
 		"file" => "/sql/bootstrap.sql"
 	)
 );

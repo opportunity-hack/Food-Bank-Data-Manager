@@ -1,4 +1,4 @@
--- CXA Auth LW Database configuration
+-- CXA Auth LW Database configuration v2.02
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -49,7 +49,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`userid`, `username`, `password`, `name`, `email`, `authorization`, `otpsecret`) VALUES
 (1,	'admin',	'$2y$10$BQQf70BbggdS3bP.22seVeAvzrxEjWs.0c/ufP6gzXbq/cxs6DW6K',	'Administrator',	'example@example.com',	4,	''),
-(777,	'guest',	'heaven',	'guest',	NULL,	0,	'');
+(777,	'guest',	'guest',	'guest',	NULL,	0,	'');
 
 
 DROP TABLE IF EXISTS `user_limbo`;
@@ -96,11 +96,20 @@ INSERT INTO `grocery_list` (`name`) VALUES
 ('Winco');
 
 
+DROP TABLE IF EXISTS `report_emails`;
+CREATE TABLE `report_emails` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC)
+) ENGINE = InnoDB;
+
+
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
   `version` DECIMAL(10, 5) NOT NULL,
   PRIMARY KEY (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 LOCK TABLES `schema_version` WRITE;
 /*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;

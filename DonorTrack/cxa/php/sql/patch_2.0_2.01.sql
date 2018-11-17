@@ -49,7 +49,7 @@ DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
   `version` DECIMAL(10, 5) NOT NULL,
   PRIMARY KEY (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 LOCK TABLES `schema_version` WRITE;
 /*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;
