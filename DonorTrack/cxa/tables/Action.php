@@ -261,6 +261,12 @@ class SetAction extends BaseAction
 		}
 	}
 	
+	protected function output()
+	{
+		echo('ok');
+		exit();
+	}
+	
 	public function run($data)
 	{
 		global $conn;
@@ -297,17 +303,106 @@ class SetAction extends BaseAction
 		}
 		
 		$this->execute();
-		
-		echo('ok');
-		exit();
+		$this->output();
 	}
 }
 
-class NewAction implements Action
+class NewAction extends SetAction
 {
-	public function run($data)
+	use TableActionAuth;
+	
+	protected $auth_source = 'new_auth';
+	protected $statement;
+	protected $bound_data = array();
+	
+	protected function pre_validate($data_columns)
 	{
+		$columns = $this->table->get_columns();
+		$final_columns = array();
 		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null && $column_name != $this->table->get_primary_key())
+			{
+				// note that PK is skipped
+				
+				if (isset($data_columns[$column_name]))
+				{
+					$final_columns[$column_name] = $column;
+				}
+				else if ($column->mandatory)
+				{
+					http_response_code(400);
+					echo('missing column '.$column_name);
+					exit();
+				}
+			}
+		}
+		
+		return $final_columns;
+	}
+	
+	protected function build_query($columns)
+	{
+		$query = "INSERT INTO `".$this->table->get_schema_name()."` (";
+		
+		$count = 0;
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null && $column_name != $this->table->get_primary_key())
+			{
+				$query .= "`".$column_name."`, ";
+				$count++;
+			}
+		}
+		
+		$query  = rtrim($query, ", ");
+		$query .= ") VALUES (";
+		
+		for ($i = 0; $i < $count; $i++)
+		{
+			$query .= "?, ";
+		}
+		
+		$query  = rtrim($query, ", ");
+		$query .= ");";
+		
+		return $query;
+	}
+	
+	protected function setup_bindings($columns)
+	{
+		$bind_types = "";
+		$params = array("");
+		
+		foreach ($columns as $column)
+		{
+			$column_name = $column->get_name();
+			
+			if ($column_name !== null && $column_name != $this->table->get_primary_key())
+			{
+				$bind_types .= $column->get_bind_type();
+				
+				$this->bound_data[$column_name] = null;
+				$params[] = &$this->bound_data[$column_name];
+			}
+		}
+		
+		$params[0] = $bind_types;
+		
+		return call_user_func_array(array($this->statement, 'bind_param'), $params);
+	}
+	
+	protected function output()
+	{
+		global $conn;
+		
+		echo($conn->insert_id);
+		exit();
 	}
 }
 
