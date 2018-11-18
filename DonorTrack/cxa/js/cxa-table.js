@@ -701,7 +701,7 @@ TableCellClasses.Password.prototype.get_reset_link = function ()
 		},
 		(function(cell){return function(resp)
 		{
-			if (typeof resp === 'string' && resp.includes('http'))
+			if (typeof resp === 'string' && resp.indexOf('http') !== -1)
 			{
 				window.open(resp, '_blank').focus();
 			}
