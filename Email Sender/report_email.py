@@ -1,11 +1,11 @@
 import datetime
-# import mysql
+import mysql
 import json
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '\\..\\FBM Utility\\')
-print sys.path
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../FBM Utility/')
+
 from GenerateMonthlyReport import WriteExcelSheet
 from EmailSender import send_email
 
@@ -22,15 +22,15 @@ if __name__ == '__main__':
 
     cur.execute("SELECT * FROM report_emails")
     email_list = cur.fetchall()
-    email_list = tuple(i[0] for i in email_list)
+    email_list = tuple(i[1] for i in email_list)
 
     now = datetime.datetime.now()
 
-    report_filename = WriteExcelSheet("out/Report {}-{}".format(now.strftime("%m"), now.strftime("%Y")),
+    report_filename = WriteExcelSheet(os.path.abspath("../FBM Utility/out/Report {}-{}".format(now.strftime("%m"), now.strftime("%Y"))),
                                         month=int(now.strftime("%m")), year=int(now.strftime("%Y")))
 
     for email in email_list:
-        send_email(email, "Matthews Crossings Report for {}".format(now.strftime("%Y-%m-%d")),
+        send_email(email, "Matthews Crossing Report for {}".format(now.strftime("%Y-%m-%d")),
                     email_body, report_filename)
 
     os.remove(report_filename)
