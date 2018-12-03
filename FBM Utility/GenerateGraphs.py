@@ -38,8 +38,11 @@ def embedded_plot(graph):
 	return "{}.embed".format(py.plot(graph, auto_open=False))
 
 def graph_1(fbm):
-	time = datetime.now()
+	time = datetime.now() + relativedelta(months=0)
 	food_data = GenerateMonthlyReport.RunMonthlyReport(fbm, month=time.month, year=time.year)
+	
+	if food_data.empty:
+		return "/no_data.html"
 	
 	messy_data = GenerateMonthlyReport.PivotInventoryTable(food_data)
 	useful_data = messy_data.to_dict()[('sum', 'Weight (lbs)')]
