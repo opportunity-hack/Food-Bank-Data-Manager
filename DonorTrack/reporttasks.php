@@ -10,7 +10,8 @@ if (isset($_POST["action"]))
 	{
 		case "graphregen":
 			chdir("../FBM Utility/");
-			if (empty(trim(shell_exec("$pypath \"GenerateGraphs.py\" 2>&1"))))
+			$result = shell_exec("$pypath \"GenerateGraphs.py\" 2>&1");
+			if (empty(trim($result)))
 			{
 				$regmsg = "Graphs Regenerated Successfully!";
 				$regtitle = "Regenerate Graphs";
@@ -19,6 +20,23 @@ if (isset($_POST["action"]))
 			}
 			else
 			{
+				error_log("graphregen failed: $result");
+				$interError = true;
+			}
+			break;
+		case "sendreports":
+			chdir("../Email Sender/");
+			$result = shell_exec("$pypath \"report_email.py\" 2>&1");
+			if (empty(trim($result)))
+			{
+				$regmsg = "Reports Emailed!";
+				$regtitle = "Send Report Emails";
+				include($_SERVER['DOCUMENT_ROOT'].'/cxa/php/reg-ok.php');
+				exit();
+			}
+			else
+			{
+				error_log("sendreports failed: $result");
 				$interError = true;
 			}
 			break;
@@ -68,6 +86,9 @@ if (isset($_POST["action"]))
 				?>
 				<button type="submit" class="loginbutton" name="action" value="graphregen">
 					Regenerate Graphs
+				</button>
+				<button type="submit" class="loginbutton" name="action" value="sendreports">
+					Send Report Emails
 				</button>
 				<p class="flabel" style="margin-top: 16px;">These tasks may take a while. Please be patient.</span></p>
 			</form>

@@ -12,7 +12,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 with open('plotly_auth.json') as f:
 	plotly_auth = json.load(f)
-plotly.tools.set_credentials_file(**plotly_auth)
+plotly.plotly.sign_in(**plotly_auth)
 
 import mysql.connector
 
@@ -65,7 +65,7 @@ def graph_1(fbm):
 
 def graph_2345_data(fbm):
 	now = datetime.now()
-	end = datetime(now.year, now.month, 1) + relativedelta(months=-1)
+	end = datetime(now.year, now.month, 1)
 	start = end + relativedelta(months=-12)
 	food_data = fbm.GetFoodDonations(start, end)
 	guest_data = fbm.GetGuestData(start, end)
