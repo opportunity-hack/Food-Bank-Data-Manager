@@ -106,7 +106,7 @@ class FBM(object):
 							 "outreaches.id as oid",
 							 "outreaches.name",
 							 "outreaches.outreach_on",
-							 "clients.id as gid",
+							 "visits.client_id as gid",
 							 "clients.firstname",
 							 "clients.middlename",
 							 "clients.lastname",
