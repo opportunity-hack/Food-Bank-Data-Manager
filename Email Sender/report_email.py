@@ -3,6 +3,7 @@ import mysql
 import json
 import sys
 import os
+from dateutil.relativedelta import relativedelta
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../FBM Utility/')
 
@@ -26,13 +27,13 @@ if __name__ == '__main__':
 
     now = datetime.datetime.now()
     # Reset to first of last month
-    now = now.replace(day=1) - datetime.timedelta(1)
+    rdate = datetime.datetime(now.year, now.month, 1) + relativedelta(months=-1)
 
-    report_filename = WriteExcelSheet(os.path.abspath("../FBM Utility/out/Report {}-{}".format(now.strftime("%m"), now.strftime("%Y"))),
-                                        month=int(now.strftime("%m")), year=int(now.strftime("%Y")))
+    report_filename = WriteExcelSheet(os.path.abspath("../FBM Utility/out/Report {}-{}".format(rdate.month, rdate.year)),
+                                        month=rdate.month, year=rdate.year)
 
     for email in email_list:
-        send_email(email, "Matthews Crossing Report for {}".format(now.strftime("%Y-%m")),
+        send_email(email, "Matthews Crossing Report for {}".format(rdate.strftime("%Y-%m")),
                     email_body, report_filename)
 
     os.remove(report_filename)
