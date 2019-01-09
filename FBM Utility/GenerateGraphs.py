@@ -18,6 +18,7 @@ import mysql.connector
 
 import FoodBankManager
 import GenerateMonthlyReport
+import FixedData
 
 class DBConn:
 	def __init__(self, cred_file):
@@ -38,7 +39,7 @@ def embedded_plot(graph):
 	return "{}.embed".format(py.plot(graph, auto_open=False))
 
 def graph_1(fbm):
-	time = datetime.now() + relativedelta(months=0)
+	time = datetime.now() + relativedelta(months=-1)
 	food_data = GenerateMonthlyReport.RunMonthlyReport(fbm, month=time.month, year=time.year)
 	
 	if food_data.empty:
@@ -50,7 +51,7 @@ def graph_1(fbm):
 	
 	data = [go.Bar(x=sorted_data[0], y=sorted_data[1])]
 	layout = go.Layout(
-		title = "This Month's Donations",
+		title = "Last Month's Donations",
 		xaxis = {
 			'type':  'category',
 			'title': 'Source'
@@ -80,6 +81,7 @@ def graph_2345_data(fbm):
 	output = []
 	period_start = start
 	inventory = 0
+	inventory_adjust = 0
 	all_clients = set()
 	
 	for i in range(12):
@@ -88,10 +90,26 @@ def graph_2345_data(fbm):
 		food_month = food_data[(food_data[u'Donated On'] >= period_start) & (food_data[u'Donated On'] <= period_end)]
 		guest_month = guest_data[(guest_data[u'Outreach on'] >= period_start) & (guest_data[u'Outreach on'] <= period_end)]
 		
+		clients = set(guest_month[u'Guest ID'].unique())
+		month_clients = len(clients)
+		new_clients = len([c for c in clients if c not in all_clients])
+		all_clients = all_clients.union(clients)
+		clients_served = guest_month[u'Tracking Result'].sum()
+		
+		if (period_start.month, period_start.year) in FixedData.override.keys():
+			month_clients = FixedData.override[(period_start.month, period_start.year)]['clients']
+			new_clients = FixedData.override[(period_start.month, period_start.year)]['new_clients']
+			clients_served = FixedData.override[(period_start.month, period_start.year)]['impact']
+		
 		intake_total = food_month[food_month[u'DonorCategory'] != u'Waste'][u'Weight (lbs)'].sum()
 		waste_total =  food_month[food_month[u'DonorCategory'] == u'Waste'][u'Weight (lbs)'].sum()
 		output_total = month_clients * FixedData.output_weight
 		food_out_total = waste_total + output_total
+		
+		if (period_start.month, period_start.year) in FixedData.inventory.keys():
+			inventory_adjust = (FixedData.inventory[(period_start.month, period_start.year)] - (intake_total - food_out_total)) - inventory
+			print("FixedData.inventory[({}, {})] = {}; month net food is {}; tallied inventory is {} => inventory_adjust = {}".format(period_start.month, period_start.year, FixedData.inventory[(period_start.month, period_start.year)], intake_total - food_out_total, inventory, inventory_adjust))
+		
 		inventory += (intake_total - waste_total - output_total)
 		
 		volunteer_hours = 0
@@ -102,15 +120,11 @@ def graph_2345_data(fbm):
 			volunteer_hours += len(outreach_day[u'Volunteer'].unique())
 			day_start = day_end
 		
-		clients = set(guest_month[u'Guest ID'].unique())
-		month_clients = len(clients)
-		new_clients = len([c for c in clients if c not in all_clients])
-		all_clients = all_clients.union(clients)
-		
-		clients_served = guest_month[u'Tracking Result'].sum()
-		
-		output.append((period_start, intake_total, food_out_total, inventory, volunteer_hours, month_clients, new_clients, clients_served))
+		output.append([period_start, intake_total, food_out_total, inventory, volunteer_hours, month_clients, new_clients, clients_served])
 		period_start = period_end
+	
+	for data in output:
+		data[3] += inventory_adjust
 	
 	return zip(*output)
 
