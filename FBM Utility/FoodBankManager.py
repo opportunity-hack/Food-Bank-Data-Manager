@@ -310,13 +310,11 @@ class FBM(object):
 			"",
 			"Individual Donor",
 			"Churches/Places of Worship",
-			"Grants/Foundations",
 			"Business/Corporation/Organization",
-			"Fundraising Events",
-			"Board of Directors",
-			"Recurring Monthly Donation",
-			"NTFH Event",
-			"Other Revenue"
+			"Government/DES",
+			"Purchased Food",
+			"Food Waste",
+			"Food Drive"
 		]
 
 		payload = {

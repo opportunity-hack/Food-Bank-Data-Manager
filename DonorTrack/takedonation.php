@@ -4,11 +4,20 @@ include('cxa/meta.php');
 boot_user(2);
 include('donorinter.php');
 
-$donation_types = Array("", "Individual Donor", "Churches/Places of Worship", "Grants/Foundations", "Business/Corporation/Organization", "Fundraising Events", "Board of Directors", "Recurring Monthly Donation", "NTFH Event", "Other Revenue");
+$donation_types = Array(
+	"",
+	"Individual Donor",
+	"Churches/Places of Worship",
+	"Business/Corporation/Organization",
+	"Government/DES",
+	"Purchased Food",
+	"Food Waste",
+	"Food Drive"
+);
 
-function hasError(){
+function hasError($field){
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
-		if(tryField("weight")==""){
+		if(tryField($field)==""){
 			return " haserror";
 		}else{
 			return "";
@@ -16,7 +25,7 @@ function hasError(){
 	}
 }
 
-if(!empty($_POST["donorid"]) && !empty($_POST["weight"])){
+if(!empty($_POST["donorid"]) && !empty($_POST["weight"]) && !empty($_POST["type"])){
 	if(addDonation($_POST)){
 		$recorded = true;
 	}else{
@@ -104,7 +113,7 @@ if(!empty($_POST["donorid"]) && !empty($_POST["weight"])){
 				<form action="takedonation.php" method="post" id="login" style="height: auto; padding: 10px 15px; width: 270px; margin-bottom: 40px;">
 					<input type="hidden" name="donorid" value="<?=tryField("donorid")?>" />
 					<p class="ilabel">Donation Type</p>
-					<select name="type" class="registertext" style="width: 100%;">
+					<select name="type" class="registertext<?=hasError("type")?>" style="width: 100%;">
 						<?php
 						$prevval = tryField("type");
 						foreach($donation_types as $pos=>$type){
@@ -119,7 +128,7 @@ if(!empty($_POST["donorid"]) && !empty($_POST["weight"])){
 					<p class="ilabel">Donation Source</p>
 					<input type="text" name="source" class="registertext" style="width: 100%;" <?=tryFieldValue("source")?>/>-->
 					<p class="ilabel">Donation Weight</p>
-					<input type="number" name="weight" class="registertext<?=hasError()?>" style="width: 100%;" <?=tryFieldValue("weight")?>/>
+					<input type="number" name="weight" class="registertext<?=hasError("weight")?>" style="width: 100%;" <?=tryFieldValue("weight")?>/>
 					<p class="ilabel">Donation Date <span style="color: #666">(YYYY-MM-DD)</span></p>
 					<input type="text" id="date" name="date" class="registertext" style="width: 100%;" <?=tryField("date")?tryFieldValue("date"):'value="'.date("Y-m-d").'"'?>/>
 					<input type="submit" style="position: absolute; height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" tabindex="-1">

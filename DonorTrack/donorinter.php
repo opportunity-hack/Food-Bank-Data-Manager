@@ -58,7 +58,7 @@ function addDonor($fields){
 }
 
 function addDonation($fields){
-	if(!empty($fields["donorid"]) && array_key_exists($fields["donorid"], $_SESSION["donorlist"]) && !empty($fields["weight"]) && isset($fields["type"])){
+	if(!empty($fields["donorid"]) && array_key_exists($fields["donorid"], $_SESSION["donorlist"]) && !empty($fields["weight"]) && !empty($fields["type"])){
 		//if(!isset($fields["source"])) $fields["source"]="";
 		global $pypath;
 		if(!empty($fields["date"])){
