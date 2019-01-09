@@ -87,8 +87,8 @@ def graph_2345_data(fbm):
 	for i in range(12):
 		period_end = period_start + relativedelta(months=+1)
 		
-		food_month = food_data[(food_data[u'Donated On'] >= period_start) & (food_data[u'Donated On'] <= period_end)]
-		guest_month = guest_data[(guest_data[u'Outreach on'] >= period_start) & (guest_data[u'Outreach on'] <= period_end)]
+		food_month = food_data[(food_data[u'Donated On'] >= period_start) & (food_data[u'Donated On'] < period_end)]
+		guest_month = guest_data[(guest_data[u'Outreach on'] >= period_start) & (guest_data[u'Outreach on'] < period_end)]
 		
 		clients = set(guest_month[u'Guest ID'].unique())
 		month_clients = len(clients)
@@ -108,7 +108,6 @@ def graph_2345_data(fbm):
 		
 		if (period_start.month, period_start.year) in FixedData.inventory.keys():
 			inventory_adjust = (FixedData.inventory[(period_start.month, period_start.year)] - (intake_total - food_out_total)) - inventory
-			print("FixedData.inventory[({}, {})] = {}; month net food is {}; tallied inventory is {} => inventory_adjust = {}".format(period_start.month, period_start.year, FixedData.inventory[(period_start.month, period_start.year)], intake_total - food_out_total, inventory, inventory_adjust))
 		
 		inventory += (intake_total - waste_total - output_total)
 		
