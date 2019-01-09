@@ -90,7 +90,7 @@ def graph_2345_data(fbm):
 		
 		intake_total = food_month[food_month[u'DonorCategory'] != u'Waste'][u'Weight (lbs)'].sum()
 		waste_total =  food_month[food_month[u'DonorCategory'] == u'Waste'][u'Weight (lbs)'].sum()
-		output_total = guest_month.shape[0] * 40
+		output_total = month_clients * FixedData.output_weight
 		food_out_total = waste_total + output_total
 		inventory += (intake_total - waste_total - output_total)
 		

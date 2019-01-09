@@ -114,7 +114,7 @@ def WriteSummaryData(q, ws, origin=(1,1),  month=None, year=None, existing_clien
 		ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).value = len(clients)
 		ws.cell(row=origin[0] + len(donor_catagories) + 6, column=origin[1]).value = len(new_clients)
 		ws.cell(row=origin[0] + len(donor_catagories) + 7, column=origin[1]).value = user_data["Tracking Result"].sum()
-	ws.cell(row=origin[0] + len(donor_catagories) + 8, column=origin[1]).value = "={}*50".format(ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).coordinate)
+	ws.cell(row=origin[0] + len(donor_catagories) + 8, column=origin[1]).value = "={}*{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).coordinate, FixedData.output_weight)
 	ws.cell(row=origin[0] + len(donor_catagories) + 9, column=origin[1]).style = "Normal"
 	if (month, year) in FixedData.inventory.keys():
 		ws.cell(row=origin[0] + len(donor_catagories) + 10, column=origin[1]).value = FixedData.inventory[(month, year)]

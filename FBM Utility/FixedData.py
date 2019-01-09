@@ -24,3 +24,5 @@ override = {
 inventory = {
 	(12, 2018):72931
 }
+
+output_weight = 50
