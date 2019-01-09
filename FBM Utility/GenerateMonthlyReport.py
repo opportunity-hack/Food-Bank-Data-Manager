@@ -8,6 +8,7 @@ import numpy as np
 import openpyxl
 
 from FoodBankManager import FBM
+import FixedData
 
 donor_catagories = ["Grocery", "Org/Corp", "Individual", "Church", "Purchased", "Senior program"]
 
@@ -74,33 +75,6 @@ def MonthlyGuestData(FBMInst,month=None, year=None):
 
 	return data
 
-fixed_data = {
-	(9, 2018):{
-		"clients":1576,
-		"new_clients":167,
-		"impact":6097
-	},
-	(10, 2018):{
-		"clients":1770,
-		"new_clients":211,
-		"impact":6599
-	},
-	(11, 2018):{
-		"clients":1680,
-		"new_clients":213,
-		"impact":6480
-	},
-	(12, 2018):{
-		"clients":1411,
-		"new_clients":155,
-		"impact":5181
-	}
-}
-# ending inventory 
-set_inventory = {
-	(12, 18):72931
-}
-
 def WriteSummaryData(q, ws, origin=(1,1),  month=None, year=None, existing_clients=None):
 	if month is not None and year is not None:
 		start = datetime.date(year, month, 1)
@@ -132,18 +106,18 @@ def WriteSummaryData(q, ws, origin=(1,1),  month=None, year=None, existing_clien
 	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).value = "={}-{}".format(ws.cell(row=origin[0] + len(donor_catagories) + 1, column=origin[1]).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 2, column=origin[1]).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).style = "Calculation"
 	ws.cell(row=origin[0] + len(donor_catagories) + 4, column=origin[1]).style = "Normal"
-	if (month, year) in fixed_data.keys():
-		ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).value = fixed_data[(month, year)]["clients"]
-                ws.cell(row=origin[0] + len(donor_catagories) + 6, column=origin[1]).value = fixed_data[(month, year)]["new_clients"]
-                ws.cell(row=origin[0] + len(donor_catagories) + 7, column=origin[1]).value = fixed_data[(month, year)]["impact"]
+	if (month, year) in FixedData.override.keys():
+		ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).value = FixedData.override[(month, year)]["clients"]
+                ws.cell(row=origin[0] + len(donor_catagories) + 6, column=origin[1]).value = FixedData.override[(month, year)]["new_clients"]
+                ws.cell(row=origin[0] + len(donor_catagories) + 7, column=origin[1]).value = FixedData.override[(month, year)]["impact"]
 	else:
 		ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).value = len(clients)
 		ws.cell(row=origin[0] + len(donor_catagories) + 6, column=origin[1]).value = len(new_clients)
 		ws.cell(row=origin[0] + len(donor_catagories) + 7, column=origin[1]).value = user_data["Tracking Result"].sum()
 	ws.cell(row=origin[0] + len(donor_catagories) + 8, column=origin[1]).value = "={}*50".format(ws.cell(row=origin[0] + len(donor_catagories) + 5, column=origin[1]).coordinate)
 	ws.cell(row=origin[0] + len(donor_catagories) + 9, column=origin[1]).style = "Normal"
-	if (month, year) in set_inventory.keys():
-		ws.cell(row=origin[0] + len(donor_catagories) + 10, column=origin[1]).value = fixed_data[(month, year)]
+	if (month, year) in FixedData.inventory.keys():
+		ws.cell(row=origin[0] + len(donor_catagories) + 10, column=origin[1]).value = FixedData.inventory[(month, year)]
 	else:
 		ws.cell(row=origin[0] + len(donor_catagories) + 10, column=origin[1]).value = "=IF(ISTEXT({0:}), {2:}-{1:}, {2:}-{1:}+{0:})".format(ws.cell(row=origin[0] + len(donor_catagories) + 10, column=origin[1]-1).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 8, column=origin[1]).coordinate, ws.cell(row=origin[0] + len(donor_catagories) + 3, column=origin[1]).coordinate)
 	
