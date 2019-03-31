@@ -11,6 +11,7 @@ import openpyxl
 
 from FoodBankManager import FBM
 import FixedData
+from ordered_set import OrderedSet
 
 
 def add_data(chart, data, from_rows=False, titles_from_data=False, title=None):
@@ -170,7 +171,7 @@ def WriteExcelSheet(name, month=None, year=None):
 	period_start = x_start
 	inventory = 0
 	inventory_adjust = 0
-	categories = set(["Grocery", "Org/Corp"])
+	categories = OrderedSet(["Grocery Store", "Business/Corporation/Organization", "Churches/Places of Worship", "Government/DES", "Individual Donor", "Purchased Food"])
 	
 	for i in range(13):
 		period_end = period_start + relativedelta(months=+1)
@@ -276,4 +277,5 @@ if __name__ == '__main__':
 	pd.set_option('display.expand_frame_repr', False)
 	if len(sys.argv) < 3:
 		print "Run with \"<month number (1-12)> <Year (4 digit)>\""
+		exit()
 	print WriteExcelSheet("out/Report {}-{}".format(sys.argv[1], sys.argv[2]), month=int(sys.argv[1]), year=int(sys.argv[2]))

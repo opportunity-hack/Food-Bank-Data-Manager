@@ -200,48 +200,59 @@ class FBM(object):
 
 	def FindDonationType(self, df):
 		df["DonorCategory"] = ""
+		lc_grocery_list = [a.lower() for a in self.grocery_list]
+		
 		for i, row in df.iterrows():
-			don_type = None
 			data_dict = row.to_dict()
-			# Waste
-			if don_type is None:
+			don_type = data_dict["Source of Donation"]
+			
+			# Reassignment logic for data entered before the new categories existed
+			# Waste, Government/DES, Grocery Store
+			if don_type == "Business/Corporation/Organization" or don_type == "":
 				if "Food" in data_dict["First Name"] and "Waste" in data_dict["Last Name"]:
 					don_type = "Waste"
+				elif "TEFAP" == data_dict["First Name"]:
+					don_type = "Government/DES"
+				elif data_dict["First Name"].lower().split("#")[0].strip() in lc_grocery_list:
+					don_type = "Grocery Store"
+			# Fix capitalization
+			if don_type.lower() == "purchased food":
+				don_type = "Purchased Food"
+			# Reassign fundraising to Business/Corporation/Organization
+			if don_type.lower() == "fundraising events":
+				don_type = "Business/Corporation/Organization"
+			
+			# Legacy logic for when there is no category
 			# Purchased food
-			if don_type is None:
-				if "Food Bank" in data_dict["First Name"] and "Purchased food" in data_dict["Last Name"]:
-					don_type = "Purchased"
+			if don_type == "":
+				if "Food Bank" in data_dict["First Name"] and ("Purchased food" in data_dict["Last Name"] or "Purchased food" in data_dict["Last Name"]):
+					don_type = "Purchased Food"
 			# TEFAP
-			if don_type is None:
+			if don_type == "":
 				if "TEFAP" in data_dict["First Name"]:
-					don_type = "TEFAP"
+					don_type = "Government/DES"
 			# Anonymous (classified as individual)
-			if don_type is None:
+			if don_type == "":
 				if "Anonymous" in data_dict["First Name"]:
-					don_type = "Individual"
+					don_type = "Individual Donor"
 			# Senior Boxes (this must cone before Church)
-			if don_type is None:
+			if don_type == "":
 				if "Senior Boxes" in data_dict["Name of Food Item"] or "Senior Boxes" in data_dict["Memo"]:
-					don_type = "Senior program"
-			# Grocery
-			if don_type is None:
-				for store in self.grocery_list:
-					if data_dict["First Name"].lower().startswith(store.lower()):
-						don_type = "Grocery"
+					don_type = "Business/Corporation/Organization"
 			# Church
-			if don_type is None:
+			if don_type == "":
 				for type in ["church", "st."]:
 					if type in data_dict["First Name"].lower() or type in data_dict[
 						"Company / Organization Name"].lower():
-						don_type = "Church"
+						don_type = "Churches/Places of Worship"
 			# Individual
-			if don_type is None:
+			if don_type == "":
 				if len(data_dict["Company / Organization Name"]) == 0 and len(data_dict["First Name"]) < 20 and len(
 						data_dict["Last Name"]) < 20:
-					don_type = "Individual"
+					don_type = "Individual Donor"
 			# Other Org/Corp
-			if don_type is None:
-				don_type = "Org/Corp"
+			if don_type == "":
+				don_type = "Business/Corporation/Organization"
 
 			df.at[i, "DonorCategory"] = don_type
 		return df
@@ -313,8 +324,8 @@ class FBM(object):
 			"Business/Corporation/Organization",
 			"Government/DES",
 			"Purchased Food",
-			"Food Waste",
-			"Food Drive"
+			"Grocery Store",
+			"Waste"
 		]
 
 		payload = {

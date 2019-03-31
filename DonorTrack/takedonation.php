@@ -11,8 +11,8 @@ $donation_types = Array(
 	"Business/Corporation/Organization",
 	"Government/DES",
 	"Purchased Food",
-	"Food Waste",
-	"Food Drive"
+	"Grocery Store",
+	"Waste"
 );
 
 function hasError($field){
